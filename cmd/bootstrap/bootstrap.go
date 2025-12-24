@@ -38,7 +38,7 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP("migrate-dir", "d", "file://bootstrap/testdata", "Directory containing migration files")
+	cmd.Flags().StringP("migrate-dir", "d", "file://bootstrap/testdata", "Directory containing migration files, using the file URI syntax")
 
 	return cmd
 }
@@ -56,7 +56,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	}
 	defer conf.close()
 
-	if err := conf.migrateClient.MigrateUp("file://" + cmd.Flags().Lookup("migrate-dir").Value.String()); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	if err := conf.migrateClient.MigrateUp(cmd.Flags().Lookup("migrate-dir").Value.String()); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to failed to run migrations")
 	} else if errors.Is(err, migrate.ErrNoChange) {
 		fmt.Println("No new Migration scripts found. No changes applied.")
