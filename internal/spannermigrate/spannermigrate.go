@@ -9,10 +9,10 @@ import (
 	spannerDB "cloud.google.com/go/spanner/admin/database/apiv1"
 	"github.com/cccteam/spxscan"
 	"github.com/go-playground/errors/v5"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database"
-	spannerDriver "github.com/golang-migrate/migrate/v4/database/spanner"
-	_ "github.com/golang-migrate/migrate/v4/source/file" // up/down script file source driver for the migrate package
+	"github.com/zredinger-ccc/migrate/v4"
+	"github.com/zredinger-ccc/migrate/v4/database"
+	spannerDriver "github.com/zredinger-ccc/migrate/v4/database/spanner"
+	_ "github.com/zredinger-ccc/migrate/v4/source/file" // up/down script file source driver for the migrate package
 	"google.golang.org/api/option"
 )
 

@@ -109,8 +109,6 @@ github.com/googleapis/gax-go/v2 v2.16.0 h1:iHbQmKLLZrexmb0OSsNGTeSTS0HO4YvFOG8g5
 github.com/googleapis/gax-go/v2 v2.16.0/go.mod h1:o1vfQjjNZn4+dPnRdl/4ZD7S9414Y4xA+a/6Icj6l14=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/jtwatson/migrate/v4 v4.19.2-beta.0 h1:F3zZQYbCtMqtAOck6idnRRze8aAnQx8qyyiGp3U8/Jk=
-github.com/jtwatson/migrate/v4 v4.19.2-beta.0/go.mod h1:pcZqtMUVUrEvxIcYK63LwFUjaVBT9O6yAOGbuzxwUBo=
 github.com/jtwatson/shutdown v0.1.1 h1:1kgFchOopPJJk5vDitJuQ4jxHdsKz5119N1nn5ZMsNs=
 github.com/jtwatson/shutdown v0.1.1/go.mod h1:X6GrzMnrtG80WnP9s3eEYDpwHefIq85nO1WNRevOJq8=
 github.com/k0kubun/pp v2.3.0+incompatible h1:EKhKbi34VQDWJtq+zpsKSEhkHHs9w2P8Izbq8IhLVSo=
@@ -146,6 +144,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
+github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.1 h1:70Nj7CNgS19lecvb4Lq/PRdvh9YAUO5Tw6Gih9eX3yk=
+github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.1/go.mod h1:F9cgsVYdmzKynQaukgNRSNLvQ+VK+Q5Ulz2/1n68Cjc=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
 go.opencensus.io v0.24.0/go.mod h1:vNK8G9p7aAivkbmorf4v+7Hgx+Zs0yY+0fOtgBfjQKo=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=

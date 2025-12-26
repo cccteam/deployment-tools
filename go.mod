@@ -2,11 +2,9 @@ module github.com/cccteam/deployment-tools
 
 go 1.25.5
 
-replace github.com/golang-migrate/migrate/v4 v4.19.1 => github.com/jtwatson/migrate/v4 v4.19.2-beta.0
-
 require (
-	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/go-github/v80 v80.0.0
+	github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.1
 	google.golang.org/api v0.258.0
 )
 

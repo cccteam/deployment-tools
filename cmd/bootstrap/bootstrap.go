@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/go-playground/errors/v5"
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/source/file" // up/down script file source driver for the migrate package
 	"github.com/spf13/cobra"
+	"github.com/zredinger-ccc/migrate/v4"
+	_ "github.com/zredinger-ccc/migrate/v4/source/file" // up/down script file source driver for the migrate package
 )
 
 // Command returns the configured command
