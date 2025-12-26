@@ -3,7 +3,7 @@ package dropschema
 import (
 	"context"
 
-	"github.com/cccteam/deployment-tools/internal/migration"
+	"github.com/cccteam/deployment-tools/internal/spannermigrate"
 	"github.com/go-playground/errors/v5"
 	"github.com/sethvargo/go-envconfig"
 )
@@ -15,7 +15,7 @@ type envConfig struct {
 }
 
 type config struct {
-	migrateClient *migration.SpannerMigrationService
+	migrateClient *spannermigrate.Client
 }
 
 func newConfig(ctx context.Context) (*config, error) {
@@ -24,7 +24,7 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
 
-	db, err := migration.ConnectToSpanner(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
+	db, err := spannermigrate.Connect(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
 	if err != nil {
 		return nil, errors.Wrapf(err, "ConnectToSpanner()")
 	}

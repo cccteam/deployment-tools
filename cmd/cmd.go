@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/cccteam/deployment-tools/cmd/bootstrap"
+	"github.com/cccteam/deployment-tools/cmd/dropschema"
 	"github.com/cccteam/deployment-tools/cmd/resolvedeployment"
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -23,6 +24,7 @@ var rootCmd = &cobra.Command{
 func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(resolvedeployment.Command(ctx))
 	rootCmd.AddCommand(bootstrap.Command(ctx))
+	rootCmd.AddCommand(dropschema.Command(ctx))
 
 	err := rootCmd.Execute()
 	if err != nil {
