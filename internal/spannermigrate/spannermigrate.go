@@ -19,9 +19,10 @@ import (
 const defaultSchemaVersion = -1
 
 type Client struct {
-	dbStr  string
-	admin  *spannerDB.DatabaseAdminClient
-	client *spanner.Client
+	dbStr          string
+	admin          *spannerDB.DatabaseAdminClient
+	client         *spanner.Client
+	migrateClients []*migrate.Migrate // migrateClients is used to track migrate clients and cleanup their resources
 }
 
 // Connect connects to an existing spanner database and returns a Client
@@ -49,30 +50,13 @@ func Connect(ctx context.Context, projectID, instanceID, dbName string, opts ...
 // MigrateUpSchema will migrate all the way up, applying all up migrations from the sourceURL.
 // This should be used for schema migrations. (DDL)
 func (s *Client) MigrateUpSchema(ctx context.Context, sourceURL string) error {
-	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
-	spannerInstance, err := spannerDriver.WithInstance(spannerDriver.NewDB(*s.admin, *s.client), conf)
+	m, err := s.newMigrate(sourceURL)
 	if err != nil {
-		return errors.Wrap(err, "spannerDriver.WithInstance()")
+		return errors.Wrap(err, "migrateUp()")
 	}
-
-	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
-	if err != nil {
-		return errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, s.dbStr)
-	}
-	defer func() {
-		if srcErr, dbErr := m.Close(); err != nil {
-			log.Printf("migrate.Migrate.Close() error: source error: %v, database error: %v: %s", srcErr, dbErr, sourceURL)
-		}
-	}()
 
 	if err := m.Up(); err != nil {
 		return errors.Wrapf(err, "migrate.Migrate.Up(): %s", sourceURL)
-	}
-
-	if err, dbErr := m.Close(); err != nil {
-		return errors.Wrapf(err, "migrate.Migrate.Close(): source error: %s", sourceURL)
-	} else if dbErr != nil {
-		return errors.Wrapf(dbErr, "migrate.Migrate.Close(): database error: %s", sourceURL)
 	}
 
 	return nil
@@ -139,21 +123,10 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 }
 
 func (s *Client) migrateUp(sourceURL string) error {
-	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
-	spannerInstance, err := spannerDriver.WithInstance(spannerDriver.NewDB(*s.admin, *s.client), conf)
+	m, err := s.newMigrate(sourceURL)
 	if err != nil {
-		return errors.Wrap(err, "spannerDriver.WithInstance()")
+		return errors.Wrap(err, "migrateUp()")
 	}
-
-	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
-	if err != nil {
-		return errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, s.dbStr)
-	}
-	defer func() {
-		if srcErr, dbErr := m.Close(); err != nil {
-			log.Printf("migrate.Migrate.Close() error: source error: %v, database error: %v: %s", srcErr, dbErr, sourceURL)
-		}
-	}()
 
 	if err := m.Up(); err != nil {
 		return errors.Wrapf(err, "migrate.Migrate.Up(): %s", sourceURL)
@@ -199,8 +172,35 @@ func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error 
 }
 
 func (s *Client) Close() {
+	for _, m := range s.migrateClients {
+		srcErr, dbErr := m.Close()
+		if srcErr != nil {
+			log.Println("failed to close source", srcErr)
+		}
+		if dbErr != nil {
+			log.Println("failed to close database", dbErr)
+		}
+	}
 	if err := s.admin.Close(); err != nil {
 		log.Println("failed to close admin client", err)
 	}
 	s.client.Close()
+}
+
+// newMigrate creates a new migrate instance and registers it with the migrateClients on Client
+func (s *Client) newMigrate(sourceURL string) (*migrate.Migrate, error) {
+	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
+	spannerInstance, err := spannerDriver.WithInstance(spannerDriver.NewDB(*s.admin, *s.client), conf)
+	if err != nil {
+		return nil, errors.Wrap(err, "spannerDriver.WithInstance()")
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
+	if err != nil {
+		return nil, errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, s.dbStr)
+	}
+
+	s.migrateClients = append(s.migrateClients, m)
+
+	return m, nil
 }

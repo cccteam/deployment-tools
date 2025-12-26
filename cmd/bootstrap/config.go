@@ -9,10 +9,9 @@ import (
 )
 
 type envConfig struct {
-	SpannerProjectID       string `env:"GOOGLE_CLOUD_SPANNER_PROJECT"`
-	SpannerInstanceID      string `env:"GOOGLE_CLOUD_SPANNER_INSTANCE_ID"`
-	SpannerDatabaseName    string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_NAME"`
-	SchemaMigrationDirPath string `env:"SCHEMA_MIGRATION_DIR_PATH"`
+	SpannerProjectID    string `env:"GOOGLE_CLOUD_SPANNER_PROJECT"`
+	SpannerInstanceID   string `env:"GOOGLE_CLOUD_SPANNER_INSTANCE_ID"`
+	SpannerDatabaseName string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_NAME"`
 }
 
 type config struct {
