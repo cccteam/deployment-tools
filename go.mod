@@ -112,6 +112,7 @@ require (
 	cloud.google.com/go/cloudbuild v1.25.0
 	cloud.google.com/go/spanner v1.87.0 // indirect
 	github.com/cccteam/db-initiator v0.2.17
+	github.com/cccteam/spxscan v0.0.7
 	github.com/go-playground/errors/v5 v5.4.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

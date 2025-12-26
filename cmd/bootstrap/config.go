@@ -2,9 +2,7 @@ package bootstrap
 
 import (
 	"context"
-	"log"
 
-	initiator "github.com/cccteam/db-initiator"
 	"github.com/go-playground/errors/v5"
 	"github.com/sethvargo/go-envconfig"
 )
@@ -17,7 +15,7 @@ type envConfig struct {
 }
 
 type config struct {
-	migrateClient *initiator.SpannerMigrationService
+	migrateClient *SpannerMigrationService
 }
 
 func newConfig(ctx context.Context) (*config, error) {
@@ -26,9 +24,9 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
 
-	db, err := initiator.ConnectToSpanner(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
+	db, err := ConnectToSpanner(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
 	if err != nil {
-		return nil, errors.Wrapf(err, "initiator.ConnectToSpanner()")
+		return nil, errors.Wrapf(err, "ConnectToSpanner()")
 	}
 
 	return &config{
@@ -37,7 +35,5 @@ func newConfig(ctx context.Context) (*config, error) {
 }
 
 func (c *config) close() {
-	if err := c.migrateClient.Close(); err != nil {
-		log.Println(err)
-	}
+	c.migrateClient.Close()
 }
