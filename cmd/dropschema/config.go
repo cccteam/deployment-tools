@@ -1,4 +1,4 @@
-package bootstrap
+package dropschema
 
 import (
 	"context"
@@ -9,10 +9,9 @@ import (
 )
 
 type envConfig struct {
-	SpannerProjectID       string `env:"SPANNER_PROJECT_ID"`
-	SpannerInstanceID      string `env:"SPANNER_INSTANCE_ID"`
-	SpannerDatabaseName    string `env:"SPANNER_DATABASE_NAME"`
-	SchemaMigrationDirPath string `env:"SCHEMA_MIGRATION_DIR_PATH"`
+	SpannerProjectID    string `env:"SPANNER_PROJECT_ID"`
+	SpannerInstanceID   string `env:"SPANNER_INSTANCE_ID"`
+	SpannerDatabaseName string `env:"SPANNER_DATABASE_NAME"`
 }
 
 type config struct {

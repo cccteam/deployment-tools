@@ -1,8 +1,7 @@
-package bootstrap
+package dropschema
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/go-playground/errors/v5"
@@ -18,16 +17,15 @@ func Command(ctx context.Context) *cobra.Command {
 }
 
 type command struct {
-	dataMigrationDirs  []string
 	SchemaMigrationDir string
 }
 
 // Setup returns the configured cli command
 func (c *command) Setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "bootstrap",
-		Short: "Bootstrap database",
-		Long:  "Bootstrap database by running specified migrations",
+		Use:   "drop",
+		Short: "drop database tables",
+		Long:  "Drop all database tables",
 		RunE: func(cmd *cobra.Command, _ []string) (err error) {
 			if err := c.ValidateFlags(cmd); err != nil {
 				return err
@@ -40,25 +38,13 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVarP(&c.SchemaMigrationDir, "schema-dir", "s", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
-	cmd.Flags().StringSliceVar(&c.dataMigrationDirs, "data-dirs", []string{"file://bootstrap/testdata"}, "Directories containing data migration files, using the file URI syntax")
 
 	return cmd
 }
 
 // ValidateFlags validates and processes any input flags
 func (c *command) ValidateFlags(cmd *cobra.Command) error {
-	// Validate schema migration directory
-	if c.SchemaMigrationDir == "" {
-		return errors.New("schema-dir flag is required")
-	}
-
-	// Validate data migration directories
-	if len(c.dataMigrationDirs) == 0 {
-		return errors.New("at least one data-dir flag is required")
-	}
-
 	return nil
 }
 
@@ -70,16 +56,8 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	}
 	defer conf.close()
 
-	if err := conf.migrateClient.MigrateUpSchema(ctx, c.SchemaMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return errors.Wrap(err, "failed to run schema migrations")
-	}
-
-	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDirs...); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return errors.Wrap(err, "failed to failed to run migrations")
-	} else if errors.Is(err, migrate.ErrNoChange) {
-		fmt.Println("No new Migration scripts found. No changes applied.")
-	} else {
-		fmt.Println("Ran migration successful")
+	if err := conf.migrateClient.MigrateDropSchema(ctx, c.SchemaMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return errors.Wrap(err, "failed to drop schema")
 	}
 
 	return nil
