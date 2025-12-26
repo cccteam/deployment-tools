@@ -132,12 +132,6 @@ func (s *Client) migrateUp(sourceURL string) error {
 		return errors.Wrapf(err, "migrate.Migrate.Up(): %s", sourceURL)
 	}
 
-	if err, dbErr := m.Close(); err != nil {
-		return errors.Wrapf(err, "migrate.Migrate.Close(): source error: %s", sourceURL)
-	} else if dbErr != nil {
-		return errors.Wrapf(dbErr, "migrate.Migrate.Close(): database error: %s", sourceURL)
-	}
-
 	return nil
 }
 
