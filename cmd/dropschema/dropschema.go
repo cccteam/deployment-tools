@@ -56,9 +56,13 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	}
 	defer conf.close()
 
+	log.Println("Dropping schema tables...")
+
 	if err := conf.migrateClient.MigrateDropSchema(ctx, c.SchemaMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to drop schema")
 	}
+
+	log.Println("Schema tables dropped successfully")
 
 	return nil
 }

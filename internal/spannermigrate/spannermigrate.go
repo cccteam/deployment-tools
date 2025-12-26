@@ -200,7 +200,7 @@ func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error 
 
 func (s *Client) Close() {
 	if err := s.admin.Close(); err != nil {
-		log.Printf("failed to close admin client: %v", err)
+		log.Println("failed to close admin client", err)
 	}
 	s.client.Close()
 }
