@@ -73,7 +73,7 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 		func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
 			err := spxscan.Get(ctx, txn, &schemaMigration, spanner.NewStatement("SELECT Version, Dirty FROM SchemaMigrations"))
 			if err != nil {
-				return err
+				return errors.Wrap(err, "spxscan.Get()")
 			}
 
 			m := []*spanner.Mutation{
@@ -81,7 +81,8 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 				spanner.Insert("SchemaMigrations",
 					[]string{"Version", "Dirty"},
 					[]any{defaultSchemaVersion, false},
-				)}
+				),
+			}
 
 			return txn.BufferWrite(m)
 		})
@@ -108,12 +109,14 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 				spanner.Insert("SchemaMigrations",
 					[]string{"Version", "Dirty"},
 					[]any{schemaMigration.Version, schemaMigration.Dirty},
-				)}
+				),
+			}
 
 			return txn.BufferWrite(m)
 		})
 	if err != nil {
 		log.Printf("ERROR: failed to reset schema migration version, please check the database")
+
 		return errors.Wrap(err, "failed to reset schema migration version")
 	}
 
@@ -147,8 +150,12 @@ func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error 
 		return errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, s.dbStr)
 	}
 	defer func() {
-		if srcErr, dbErr := m.Close(); err != nil {
+		srcErr, dbErr := m.Close()
+		if srcErr != nil {
 			log.Printf("migrate.Migrate.Close() error: source error: %v, database error: %v: %s", srcErr, dbErr, sourceURL)
+		}
+		if dbErr != nil {
+			log.Printf("migrate.Migrate.Close() error: database error: %v: %s", dbErr, sourceURL)
 		}
 	}()
 

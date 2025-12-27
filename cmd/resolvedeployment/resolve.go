@@ -162,8 +162,8 @@ func (r *DeploymentResolver) Resolve(ctx context.Context) (*Result, error) {
 	}
 
 	// Resolve Cloud Run services
-	var serviceNames []string
-	var imageURLs []string
+	serviceNames := make([]string, 0, len(r.cfg.Services))
+	imageURLs := make([]string, 0, len(r.cfg.Services))
 	for _, svc := range r.cfg.Services {
 		imageURL := fmt.Sprintf("%s/%s:%s", svc.Repository, svc.ImageName, r.cfg.CommitSHA)
 		resolved := ResolvedService{

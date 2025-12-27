@@ -8,12 +8,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type command struct {
-}
+type command struct{}
 
 // Command returns the configured command
 func Command(ctx context.Context) *cobra.Command {
 	cli := command{}
+
 	return cli.Setup(ctx)
 }
 

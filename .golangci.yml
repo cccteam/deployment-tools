@@ -12,7 +12,6 @@ linters:
     - errcheck
     - errorlint
     - exhaustive
-    - exhaustruct
     - forcetypeassert
     - funlen
     - gochecknoglobals
@@ -73,31 +72,12 @@ linters:
             - cloud.google.com/go/civil
             - cloud.google.com/go/spanner
             - cloud.google.com/go/logging
-            - github.com/AscendiumApps
-            - github.com/aws
-            - github.com/casbin
-            - github.com/cccteam/access
-            - github.com/cccteam/ccc
-            - github.com/cccteam/ccc/accesstypes
-            - github.com/cccteam/ccc/resource
-            - github.com/cccteam/db-initiator
-            - github.com/cccteam/httpio
-            - github.com/cccteam/logger
-            - github.com/cccteam/ccc/pkg
-            - github.com/cccteam/session
-            - github.com/cccteam/session/sessioninfo
-            - github.com/cccteam/session/sessionstorage
-            - github.com/cccteam/spxscan
-            - github.com/cccteam/spxscan/spxapi
+            - github.com/cccteam
             - github.com/cenkalti
-            - github.com/coreos/go-oidc
             - github.com/docker
             - github.com/dslipak
             - github.com/exaring/otelpgx
-            - github.com/flowerinthenight/casbin-spanner-adapter
             - github.com/georgysavva
-            - github.com/go-chi/chi/v5
-            - github.com/go-ldap
             - github.com/go-playground
             - github.com/go-test
             - github.com/gofrs/uuid
@@ -105,16 +85,9 @@ linters:
             - github.com/google
             - github.com/gorilla/securecookie
             - github.com/goware/emailx
-            - github.com/ianlopshire/go-fixedwidth
-            - github.com/jackc
             - github.com/jtwatson
             - github.com/korylprince
-            - github.com/sendgrid/rest
-            - github.com/sendgrid/sendgrid-go
-            - github.com/sethvargo/go-envconfig
-            - github.com/shopspring/decimal
             - github.com/spf13/cobra
-            - github.com/stretchr/testify
             - github.com/testcontainers
             - go.opentelemetry.io/otel
             - github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace
@@ -122,6 +95,10 @@ linters:
             - go.uber.org/mock
             - golang.org/x/crypto/pbkdf2
             - google.golang.org/api/iterator
+            - google.golang.org/api/option
+            - github.com/zredinger-ccc/migrate
+            - github.com/sethvargo/go-envconfig
+            - cloud.google.com/go/cloudbuild/apiv2
             - $gostd
     dupl:
       threshold: 100
