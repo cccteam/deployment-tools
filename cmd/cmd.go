@@ -6,8 +6,7 @@ package cmd
 import (
 	"context"
 
-	"github.com/cccteam/deployment-tools/cmd/bootstrap"
-	"github.com/cccteam/deployment-tools/cmd/dropschema"
+	"github.com/cccteam/deployment-tools/cmd/db"
 	"github.com/cccteam/deployment-tools/cmd/resolvedeployment"
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -23,8 +22,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute(ctx context.Context) error {
 	rootCmd.AddCommand(resolvedeployment.Command(ctx))
-	rootCmd.AddCommand(bootstrap.Command(ctx))
-	rootCmd.AddCommand(dropschema.Command(ctx))
+	rootCmd.AddCommand(db.Command(ctx))
 
 	err := rootCmd.Execute()
 	if err != nil {
