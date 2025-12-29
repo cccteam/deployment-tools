@@ -56,7 +56,8 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&c.configFile, "config", "c", "", "Path to JSON config file (optional, defaults to environment variables)")
+	cmd.Flags().
+		StringVarP(&c.configFile, "config", "c", "", "Path to JSON config file (optional, defaults to environment variables)")
 
 	return cmd
 }
@@ -96,8 +97,13 @@ func (c *command) Run(ctx context.Context, _ *cobra.Command) error {
 	}()
 
 	req := &cloudbuildpb.FetchReadTokenRequest{
-		Repository: fmt.Sprintf("projects/%s/locations/%s/connections/%s/repositories/%s",
-			c.envConfig.ProjectID, c.envConfig.Location, c.envConfig.RepoConnectionName, c.envConfig.RepoName),
+		Repository: fmt.Sprintf(
+			"projects/%s/locations/%s/connections/%s/repositories/%s",
+			c.envConfig.ProjectID,
+			c.envConfig.Location,
+			c.envConfig.RepoConnectionName,
+			c.envConfig.RepoName,
+		),
 	}
 	resp, err := repoManagerClient.FetchReadToken(ctx, req)
 	if err != nil {

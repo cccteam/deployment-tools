@@ -39,7 +39,8 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&c.SchemaMigrationDir, "schema-dir", "s", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
+	cmd.Flags().
+		StringVarP(&c.SchemaMigrationDir, "schema-dir", "s", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
 
 	return cmd
 }
@@ -59,7 +60,8 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 
 	log.Println("Dropping schema tables...")
 
-	if err := conf.migrateClient.MigrateDropSchema(ctx, c.SchemaMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	if err := conf.migrateClient.MigrateDropSchema(ctx, c.SchemaMigrationDir); err != nil &&
+		!errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to drop schema")
 	}
 

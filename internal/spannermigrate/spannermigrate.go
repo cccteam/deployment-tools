@@ -26,7 +26,11 @@ type Client struct {
 }
 
 // Connect connects to an existing spanner database and returns a Client
-func Connect(ctx context.Context, projectID, instanceID, dbName string, opts ...option.ClientOption) (*Client, error) {
+func Connect(
+	ctx context.Context,
+	projectID, instanceID, dbName string,
+	opts ...option.ClientOption,
+) (*Client, error) {
 	dbStr := fmt.Sprintf("projects/%s/instances/%s/databases/%s", projectID, instanceID, dbName)
 	client, err := spanner.NewClient(ctx, dbStr, opts...)
 	if err != nil {
@@ -71,7 +75,12 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 	}
 	_, err := s.client.ReadWriteTransaction(ctx,
 		func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-			err := spxscan.Get(ctx, txn, &schemaMigration, spanner.NewStatement("SELECT Version, Dirty FROM SchemaMigrations"))
+			err := spxscan.Get(
+				ctx,
+				txn,
+				&schemaMigration,
+				spanner.NewStatement("SELECT Version, Dirty FROM SchemaMigrations"),
+			)
 			if err != nil {
 				return errors.Wrap(err, "spxscan.Get()")
 			}
@@ -127,19 +136,32 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 
 func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error {
 	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
-	spannerInstance, err := spannerDriver.WithInstance(spannerDriver.NewDB(*s.admin, *s.client), conf)
+	spannerInstance, err := spannerDriver.WithInstance(
+		spannerDriver.NewDB(*s.admin, *s.client),
+		conf,
+	)
 	if err != nil {
 		return errors.Wrap(err, "spannerDriver.WithInstance()")
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
 	if err != nil {
-		return errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, s.dbStr)
+		return errors.Wrapf(
+			err,
+			"migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s",
+			sourceURL,
+			s.dbStr,
+		)
 	}
 	defer func() {
 		srcErr, dbErr := m.Close()
 		if srcErr != nil {
-			log.Printf("migrate.Migrate.Close() error: source error: %v, database error: %v: %s", srcErr, dbErr, sourceURL)
+			log.Printf(
+				"migrate.Migrate.Close() error: source error: %v, database error: %v: %s",
+				srcErr,
+				dbErr,
+				sourceURL,
+			)
 		}
 		if dbErr != nil {
 			log.Printf("migrate.Migrate.Close() error: database error: %v: %s", dbErr, sourceURL)
@@ -191,14 +213,22 @@ func (s *Client) migrateUp(sourceURL string) error {
 // newMigrate creates a new migrate instance and registers it with the migrateClients on Client
 func (s *Client) newMigrate(sourceURL string) (*migrate.Migrate, error) {
 	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
-	spannerInstance, err := spannerDriver.WithInstance(spannerDriver.NewDB(*s.admin, *s.client), conf)
+	spannerInstance, err := spannerDriver.WithInstance(
+		spannerDriver.NewDB(*s.admin, *s.client),
+		conf,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "spannerDriver.WithInstance()")
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
 	if err != nil {
-		return nil, errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, s.dbStr)
+		return nil, errors.Wrapf(
+			err,
+			"migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s",
+			sourceURL,
+			s.dbStr,
+		)
 	}
 
 	s.migrateClients = append(s.migrateClients, m)

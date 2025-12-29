@@ -156,9 +156,18 @@ func (r *DeploymentResolver) Resolve(ctx context.Context) (*Result, error) {
 
 	// Update PWA names for non-production environments
 	if r.cfg.AppEnv != prodEnv {
-		result.AppPWAName = fmt.Sprintf("%s (%s.%s)", r.cfg.AppPWAName, result.TargetAppCode, r.cfg.AppEnv)
+		result.AppPWAName = fmt.Sprintf(
+			"%s (%s.%s)",
+			r.cfg.AppPWAName,
+			result.TargetAppCode,
+			r.cfg.AppEnv,
+		)
 		result.AppPWAShortName = fmt.Sprintf("%s.%s", result.TargetAppCode, r.cfg.AppEnv)
-		log.Printf("Updated PWA names for non-production environment: APP_PWA_NAME=%s, APP_PWA_SHORT_NAME=%s\n", result.AppPWAName, result.AppPWAShortName)
+		log.Printf(
+			"Updated PWA names for non-production environment: APP_PWA_NAME=%s, APP_PWA_SHORT_NAME=%s\n",
+			result.AppPWAName,
+			result.AppPWAShortName,
+		)
 	}
 
 	// Resolve Cloud Run services
@@ -172,7 +181,11 @@ func (r *DeploymentResolver) Resolve(ctx context.Context) (*Result, error) {
 		}
 		// Resolve OIDC redirect URL if subdomain and path are configured
 		if svc.Subdomain != "" && svc.OIDCRedirectPath != "" {
-			resolvedSubdomain := strings.ReplaceAll(svc.Subdomain, "APPCODE_PLACEHOLDER", result.TargetAppCode)
+			resolvedSubdomain := strings.ReplaceAll(
+				svc.Subdomain,
+				"APPCODE_PLACEHOLDER",
+				result.TargetAppCode,
+			)
 			resolved.OIDCRedirectURL = resolvedSubdomain + "/" + svc.OIDCRedirectPath
 		}
 		result.Services = append(result.Services, resolved)
@@ -192,7 +205,14 @@ func (r *DeploymentResolver) Resolve(ctx context.Context) (*Result, error) {
 // resolveTagBuild validates that a tag is on the tip of the default branch.
 func (r *DeploymentResolver) resolveTagBuild(ctx context.Context) error {
 	// Use the GitHub API to check if the commit is on the default branch
-	comparison, _, err := r.github.Repositories.CompareCommits(ctx, r.cfg.RepoOwner(), r.cfg.RepoName, r.cfg.DefaultBranch, r.cfg.CommitSHA, nil)
+	comparison, _, err := r.github.Repositories.CompareCommits(
+		ctx,
+		r.cfg.RepoOwner(),
+		r.cfg.RepoName,
+		r.cfg.DefaultBranch,
+		r.cfg.CommitSHA,
+		nil,
+	)
 	if err != nil {
 		return errors.Wrap(err, "github.Repositories.CompareCommits()")
 	}
@@ -200,7 +220,11 @@ func (r *DeploymentResolver) resolveTagBuild(ctx context.Context) error {
 	// If the commit is the head of the default branch, BehindBy should be 0
 	// and Status should be "identical" or "ahead"
 	if comparison.GetBehindBy() != 0 {
-		return fmt.Errorf("build REJECTED: Tag is not on tip of %s branch (behind by %d commits)", r.cfg.DefaultBranch, comparison.GetBehindBy())
+		return fmt.Errorf(
+			"build REJECTED: Tag is not on tip of %s branch (behind by %d commits)",
+			r.cfg.DefaultBranch,
+			comparison.GetBehindBy(),
+		)
 	}
 
 	return nil
@@ -210,7 +234,9 @@ func (r *DeploymentResolver) resolveTagBuild(ctx context.Context) error {
 // It fetches PR comments to find the latest /gcbrun command.
 // The command should be in the format: /gcbrun <numeric_value>
 // Additionally, the
-func (r *DeploymentResolver) resolvePRBuild(ctx context.Context) (targetAppCode, spannerDatabaseName string, err error) {
+func (r *DeploymentResolver) resolvePRBuild(
+	ctx context.Context,
+) (targetAppCode, spannerDatabaseName string, err error) {
 	twentyfourHoursAgo := time.Now().Add(-time.Hour * 24)
 	sort := "created"
 	direction := "desc"
@@ -224,7 +250,13 @@ func (r *DeploymentResolver) resolvePRBuild(ctx context.Context) (targetAppCode,
 		},
 	}
 
-	comments, _, err := r.github.Issues.ListComments(ctx, r.cfg.RepoOwner(), r.cfg.RepoName, r.cfg.PRNumber, opts)
+	comments, _, err := r.github.Issues.ListComments(
+		ctx,
+		r.cfg.RepoOwner(),
+		r.cfg.RepoName,
+		r.cfg.PRNumber,
+		opts,
+	)
 	if err != nil {
 		return "", "", errors.Wrap(err, "github.Issues.ListComments()")
 	}
@@ -237,15 +269,28 @@ func (r *DeploymentResolver) resolvePRBuild(ctx context.Context) (targetAppCode,
 
 	// Construct the final TargetAppCode
 	targetAppCode = fmt.Sprintf("%s%d", r.cfg.AppCode, instanceNumber)
-	log.Printf("Resolved TargetAppCode=%s from /gcbrun command in PR #%d\n", targetAppCode, r.cfg.PRNumber)
+	log.Printf(
+		"Resolved TargetAppCode=%s from /gcbrun command in PR #%d\n",
+		targetAppCode,
+		r.cfg.PRNumber,
+	)
 	// Check if this instance uses a custom database
 	if len(r.cfg.FeatureTestingCustomDBs) > 0 {
 		zeroIndexedInstance := instanceNumber - 1
 
 		if slices.Contains(r.cfg.FeatureTestingCustomDBs, zeroIndexedInstance) {
-			spannerDatabaseName = strings.ReplaceAll(r.cfg.FeatureTestingSpannerDatabaseName, "APPCODE_PLACEHOLDER", targetAppCode)
+			spannerDatabaseName = strings.ReplaceAll(
+				r.cfg.FeatureTestingSpannerDatabaseName,
+				"APPCODE_PLACEHOLDER",
+				targetAppCode,
+			)
 
-			log.Printf("INSTANCE_NUMBER=%d found in _FEATURE_TESTING_CUSTOM_DBS=%v. Updating GOOGLE_CLOUD_SPANNER_DATABASE_NAME=%s\n", instanceNumber, r.cfg.FeatureTestingCustomDBs, spannerDatabaseName)
+			log.Printf(
+				"INSTANCE_NUMBER=%d found in _FEATURE_TESTING_CUSTOM_DBS=%v. Updating GOOGLE_CLOUD_SPANNER_DATABASE_NAME=%s\n",
+				instanceNumber,
+				r.cfg.FeatureTestingCustomDBs,
+				spannerDatabaseName,
+			)
 		}
 	}
 
@@ -273,16 +318,25 @@ func parseGCBRunComment(comments []*github.IssueComment) (int, error) {
 	// Extract the numeric instance identifier (e.g., "123" from "/gcbrun 123")
 	parts := strings.Fields(latestBody)
 	if len(parts) < 2 {
-		return 0, fmt.Errorf("no valid environment number found in comment: %s. The command should be in the format: /gcbrun <numeric_value>", latestBody)
+		return 0, fmt.Errorf(
+			"no valid environment number found in comment: %s. The command should be in the format: /gcbrun <numeric_value>",
+			latestBody,
+		)
 	}
 
 	if !regexp.MustCompile(`^\d+$`).MatchString(parts[1]) {
-		return 0, fmt.Errorf("no valid environment number found in comment: %s. The command should be in the format: /gcbrun <numeric_value>", latestBody)
+		return 0, fmt.Errorf(
+			"no valid environment number found in comment: %s. The command should be in the format: /gcbrun <numeric_value>",
+			latestBody,
+		)
 	}
 
 	instanceNumber, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return 0, fmt.Errorf("no valid environment number found in comment: %s. The command should be in the format: /gcbrun <numeric_value>", latestBody)
+		return 0, fmt.Errorf(
+			"no valid environment number found in comment: %s. The command should be in the format: /gcbrun <numeric_value>",
+			latestBody,
+		)
 	}
 
 	return instanceNumber, nil
@@ -312,7 +366,9 @@ set -euo pipefail
 	// Write per-service OIDC redirect URLs
 	for _, svc := range result.Services {
 		if svc.OIDCRedirectURL != "" {
-			envVarName := strings.ToUpper(strings.ReplaceAll(svc.Name, "-", "_")) + "_OIDC_REDIRECT_URL"
+			envVarName := strings.ToUpper(
+				strings.ReplaceAll(svc.Name, "-", "_"),
+			) + "_OIDC_REDIRECT_URL"
 			fmt.Fprintf(&sb, `export %s="%s"
 `, envVarName, svc.OIDCRedirectURL)
 		}
