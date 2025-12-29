@@ -51,6 +51,10 @@ linters:
     - wastedassign
     - whitespace
     - wrapcheck
+    - funcorder
+    - iotamixing
+    - modernize
+    - unqueryvet
   settings:
     revive:
       rules:

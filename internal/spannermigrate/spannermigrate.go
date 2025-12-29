@@ -125,19 +125,6 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 	return nil
 }
 
-func (s *Client) migrateUp(sourceURL string) error {
-	m, err := s.newMigrate(sourceURL)
-	if err != nil {
-		return errors.Wrap(err, "migrateUp()")
-	}
-
-	if err := m.Up(); err != nil {
-		return errors.Wrapf(err, "migrate.Migrate.Up(): %s", sourceURL)
-	}
-
-	return nil
-}
-
 func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error {
 	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
 	spannerInstance, err := spannerDriver.WithInstance(spannerDriver.NewDB(*s.admin, *s.client), conf)
@@ -186,6 +173,19 @@ func (s *Client) Close() {
 		log.Println("failed to close admin client", err)
 	}
 	s.client.Close()
+}
+
+func (s *Client) migrateUp(sourceURL string) error {
+	m, err := s.newMigrate(sourceURL)
+	if err != nil {
+		return errors.Wrap(err, "migrateUp()")
+	}
+
+	if err := m.Up(); err != nil {
+		return errors.Wrapf(err, "migrate.Migrate.Up(): %s", sourceURL)
+	}
+
+	return nil
 }
 
 // newMigrate creates a new migrate instance and registers it with the migrateClients on Client
