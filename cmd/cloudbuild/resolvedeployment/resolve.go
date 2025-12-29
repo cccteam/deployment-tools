@@ -233,7 +233,6 @@ func (r *DeploymentResolver) resolveTagBuild(ctx context.Context) error {
 // resolvePRBuild resolves the deployment target for a PR-triggered build.
 // It fetches PR comments to find the latest /gcbrun command.
 // The command should be in the format: /gcbrun <numeric_value>
-// Additionally, the
 func (r *DeploymentResolver) resolvePRBuild(
 	ctx context.Context,
 ) (targetAppCode, spannerDatabaseName string, err error) {

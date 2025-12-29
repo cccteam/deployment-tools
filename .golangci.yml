@@ -206,3 +206,8 @@ formatters:
       - third_party$
       - builtin$
       - examples$
+  settings:
+    golines:
+      # Target maximum line length.
+      # Default: 100
+      max-len: 200

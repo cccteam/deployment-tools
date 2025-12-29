@@ -3,6 +3,7 @@ package dropschema
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -57,6 +58,14 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 		return errors.Wrap(err, "failed to initialize config")
 	}
 	defer conf.close()
+
+	appEnv, ok := os.LookupEnv("_APP_ENV")
+	if !ok {
+		return errors.New("_APP_ENV environment variable is not set. This will not run if it is not set")
+	}
+	if appEnv == "prd" || appEnv == "prod" || appEnv == "production" {
+		return errors.New("dropping schema in production environment is not allowed")
+	}
 
 	log.Println("Dropping schema tables...")
 
