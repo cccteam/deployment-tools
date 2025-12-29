@@ -19,7 +19,7 @@ func Command(ctx context.Context) *cobra.Command {
 func (command) Setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cloudbuild",
-		Short: "Commands for executing",
+		Short: "Commands for google cloud build operations during a deployment",
 		Long:  "Commands for google cloud build operations during a deployment, such as resolving deployments",
 	}
 

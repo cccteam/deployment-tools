@@ -26,7 +26,7 @@ func newConfig(ctx context.Context) (*config, error) {
 
 	db, err := spannermigrate.Connect(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
 	if err != nil {
-		return nil, errors.Wrapf(err, "ConnectToSpanner()")
+		return nil, errors.Wrapf(err, "spannermigrate.Connect()")
 	}
 
 	return &config{

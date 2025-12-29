@@ -2,7 +2,6 @@ package bootstrap
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 
@@ -49,14 +48,7 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 	return cmd
 }
 
-// ValidateFlags validates and processes any input flags
 func (c *command) ValidateFlags(cmd *cobra.Command) error {
-	// Validate schema migration directory
-	if c.SchemaMigrationDir == "" {
-		return errors.New("schema-dir flag is required")
-	}
-
-	// Validate data migration directories
 	if len(c.dataMigrationDirs) == 0 {
 		return errors.New("at least one data-dir flag is required")
 	}
@@ -64,7 +56,6 @@ func (c *command) ValidateFlags(cmd *cobra.Command) error {
 	return nil
 }
 
-// Run executes the command
 func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	conf, err := newConfig(ctx)
 	if err != nil {
@@ -72,19 +63,23 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	}
 	defer conf.close()
 
-	log.Printf("Running bootstrap migrations with schema dir: %s \n", c.SchemaMigrationDir)
-	if err := conf.migrateClient.MigrateUpSchema(ctx, c.SchemaMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return errors.Wrap(err, "failed to run schema migrations")
+	if c.SchemaMigrationDir != "" {
+		log.Printf("Running bootstrap migrations with schema dir: %s \n", c.SchemaMigrationDir)
+		if err := conf.migrateClient.MigrateUpSchema(ctx, c.SchemaMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+			return errors.Wrap(err, "failed to run schema migrations")
+		}
+		log.Println("Schema migrations successful")
+	} else {
+		log.Println("No schema migration directory specified, skipping schema migrations")
 	}
-	log.Println("Schema migrations successful")
 
 	log.Printf("Running bootstrap data migrations [%s]", strings.Join(c.dataMigrationDirs, ", "))
 	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDirs...); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to failed to run migrations")
 	} else if errors.Is(err, migrate.ErrNoChange) {
-		fmt.Println("No new Migration scripts found. No changes applied.")
+		log.Println("No new Migration scripts found. No changes applied.")
 	} else {
-		fmt.Println("Ran migrations successfully")
+		log.Println("Ran data migrations successfully")
 	}
 
 	return nil
