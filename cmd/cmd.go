@@ -3,8 +3,8 @@ package cmd
 import (
 	"context"
 
+	"github.com/cccteam/deployment-tools/cmd/cloudbuild"
 	"github.com/cccteam/deployment-tools/cmd/db"
-	"github.com/cccteam/deployment-tools/cmd/resolvedeployment"
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
 )
@@ -16,7 +16,7 @@ func Setup(ctx context.Context) error {
 		Short: "A command line to to be used for executing different actions during a deployment process",
 	}
 
-	cmd.AddCommand(resolvedeployment.Command(ctx))
+	cmd.AddCommand(cloudbuild.Command(ctx))
 	cmd.AddCommand(db.Command(ctx))
 
 	if err := cmd.Execute(); err != nil {

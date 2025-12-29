@@ -1,9 +1,9 @@
-package db
+package cloudbuild
 
 import (
 	"context"
 
-	"github.com/cccteam/deployment-tools/cmd/db/spanner"
+	"github.com/cccteam/deployment-tools/cmd/cloudbuild/resolvedeployment"
 	"github.com/spf13/cobra"
 )
 
@@ -18,12 +18,12 @@ func Command(ctx context.Context) *cobra.Command {
 
 func (command) Setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "db",
-		Short: "Commands for database operations during a deployment",
-		Long:  "Commands for database operations during a deployment, such as bootstrapping and dropping schema",
+		Use:   "cloudbuild",
+		Short: "Commands for executing",
+		Long:  "Commands for google cloud build operations during a deployment, such as resolving deployments",
 	}
 
-	cmd.AddCommand(spanner.Command(ctx))
+	cmd.AddCommand(resolvedeployment.Command(ctx))
 
 	return cmd
 }
