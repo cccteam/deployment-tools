@@ -35,7 +35,7 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 			}
 
 			if err := c.Run(ctx, cmd); err != nil {
-				log.Println(err)
+				log.Fatal(err)
 			}
 
 			return nil
