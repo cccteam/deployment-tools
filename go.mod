@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/google/go-github/v80 v80.0.0
-	github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.5
+	github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.7
 	google.golang.org/api v0.258.0
 )
 
