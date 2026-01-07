@@ -3,7 +3,6 @@ package spannermigrate
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"cloud.google.com/go/spanner"
 	spannerDB "cloud.google.com/go/spanner/admin/database/apiv1"
@@ -134,10 +133,10 @@ func (c *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error 
 	defer func() {
 		srcErr, dbErr := m.Close()
 		if srcErr != nil {
-			log.Printf("migrate.Migrate.Close() error: source error: %v, database error: %v: %s", srcErr, dbErr, sourceURL)
+			logger.FromCtx(ctx).Errorf("migrate.Migrate.Close() error: source error: %v: %s", srcErr, sourceURL)
 		}
 		if dbErr != nil {
-			log.Printf("migrate.Migrate.Close() error: database error: %v: %s", dbErr, sourceURL)
+			logger.FromCtx(ctx).Errorf("migrate.Migrate.Close() error: database error: %v: %s", dbErr, sourceURL)
 		}
 	}()
 
