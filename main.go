@@ -20,8 +20,8 @@ func execute(ctx context.Context) error {
 	ctx, cancel := shutdown.CaptureInterrupts(ctx)
 	defer cancel()
 
-	if err := cmd.Setup(ctx); err != nil {
-		return errors.Wrap(err, "cmd.Setup()")
+	if err := cmd.Execute(ctx); err != nil {
+		return errors.Wrap(err, "cmd.Execute()")
 	}
 
 	return nil
