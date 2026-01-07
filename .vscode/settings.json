@@ -1,0 +1,35 @@
+{
+  "editor.formatOnSave": true,
+  "git.autofetch": true,
+  "go.lintOnSave": "workspace",
+  "go.toolsManagement.autoUpdate": true,
+  "go.useLanguageServer": true,
+  "gopls": {
+    "formatting.gofumpt": true
+  },
+  "go.lintTool": "golangci-lint-v2",
+  "go.lintFlags": [
+    "--path-mode=abs",
+    "--fast-only"
+  ],
+  "go.formatTool": "custom",
+  "go.alternateTools": {
+    "customFormatter": "golangci-lint-v2"
+  },
+  "go.formatFlags": [
+    "fmt",
+    "--stdin"
+  ],
+  "go.testTimeout": "300s",
+  "go.generateTestsFlags": [
+    "-parallel"
+  ],
+  "editor.renderWhitespace": "all",
+  "go.addTags": {
+    "transform": "camelcase"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+}

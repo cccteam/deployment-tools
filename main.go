@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package main
 
 import (
@@ -8,6 +5,7 @@ import (
 	"log"
 
 	"github.com/cccteam/deployment-tools/cmd"
+	"github.com/go-playground/errors/v5"
 	"github.com/jtwatson/shutdown"
 )
 
@@ -23,7 +21,7 @@ func execute(ctx context.Context) error {
 	defer cancel()
 
 	if err := cmd.Execute(ctx); err != nil {
-		return err
+		return errors.Wrap(err, "cmd.Execute()")
 	}
 
 	return nil
