@@ -1,10 +1,10 @@
 # deployment-tools
 
-This repository provides a CLI tool for managing database operations during deployments, with a focus on Google Cloud Spanner.
+This repository provides a CLI tool for managing actions that happen during a deployment
 
 ## Overview
 
-The CLI is designed to help automate and safely manage schema and data migrations for Spanner databases. It provides commands for:
+The CLI is currently designed to help automate and safely manage schema and data migrations for Spanner databases. It provides commands for:
 
 - **Bootstrapping** a database (applying schema and data migrations)
 - **Dropping** all schema tables (with safety checks to prevent accidental use in production)
