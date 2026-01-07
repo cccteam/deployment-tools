@@ -3,7 +3,7 @@ module github.com/cccteam/deployment-tools
 go 1.25.5
 
 require (
-	github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.11
+	github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.12
 	google.golang.org/api v0.258.0
 )
 
