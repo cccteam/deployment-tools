@@ -6,6 +6,7 @@ import (
 	"github.com/cccteam/deployment-tools/internal/spannermigrate"
 	"github.com/go-playground/errors/v5"
 	"github.com/sethvargo/go-envconfig"
+	"google.golang.org/api/option"
 )
 
 type envConfig struct {
@@ -24,7 +25,7 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
 
-	db, err := spannermigrate.Connect(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
+	db, err := spannermigrate.Connect(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName, option.WithTelemetryDisabled())
 	if err != nil {
 		return nil, errors.Wrapf(err, "ConnectToSpanner()")
 	}
