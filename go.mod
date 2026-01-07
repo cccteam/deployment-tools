@@ -3,7 +3,6 @@ module github.com/cccteam/deployment-tools
 go 1.25.5
 
 require (
-	github.com/google/go-github/v80 v80.0.0
 	github.com/zredinger-ccc/migrate/v4 v4.19.2-beta.11
 	google.golang.org/api v0.258.0
 )
@@ -15,8 +14,10 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/iam v1.5.3 // indirect
+	cloud.google.com/go/logging v1.13.1 // indirect
 	cloud.google.com/go/longrunning v0.7.0 // indirect
 	cloud.google.com/go/monitoring v1.24.3 // indirect
+	contrib.go.opencensus.io/exporter/stackdriver v0.13.14 // indirect
 	github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp v1.6.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -61,11 +62,10 @@ require (
 )
 
 require (
-	cloud.google.com/go/cloudbuild v1.25.0
 	cloud.google.com/go/spanner v1.87.0
+	github.com/cccteam/logger v0.1.14
 	github.com/cccteam/spxscan v0.0.7
 	github.com/go-playground/errors/v5 v5.4.0
-	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jtwatson/shutdown v0.1.1
 	github.com/sethvargo/go-envconfig v1.3.0

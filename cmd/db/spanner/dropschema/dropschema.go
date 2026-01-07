@@ -40,8 +40,7 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().
-		StringVarP(&c.SchemaMigrationDir, "schema-dir", "s", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
+	cmd.Flags().StringVarP(&c.SchemaMigrationDir, "schema-dir", "s", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
 
 	return cmd
 }
@@ -57,8 +56,9 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
-	defer conf.close()
+	defer conf.close(ctx)
 
+	// catchall to verify whether _APP_ENV is set and in prod
 	appEnv, ok := os.LookupEnv("_APP_ENV")
 	if !ok {
 		return errors.New("_APP_ENV environment variable is not set. This will not run if it is not set")

@@ -7,10 +7,10 @@ import (
 
 	"cloud.google.com/go/spanner"
 	spannerDB "cloud.google.com/go/spanner/admin/database/apiv1"
+	"github.com/cccteam/logger"
 	"github.com/cccteam/spxscan"
 	"github.com/go-playground/errors/v5"
 	"github.com/zredinger-ccc/migrate/v4"
-	"github.com/zredinger-ccc/migrate/v4/database"
 	spannerDriver "github.com/zredinger-ccc/migrate/v4/database/spanner"
 	_ "github.com/zredinger-ccc/migrate/v4/source/file" // up/down script file source driver for the migrate package
 	"google.golang.org/api/option"
@@ -19,18 +19,13 @@ import (
 const defaultSchemaVersion = -1
 
 type Client struct {
-	dbStr          string
-	admin          *spannerDB.DatabaseAdminClient
-	client         *spanner.Client
-	migrateClients []*migrate.Migrate // migrateClients is used to track migrate clients and cleanup their resources
+	dbStr  string
+	admin  *spannerDB.DatabaseAdminClient
+	client *spanner.Client
 }
 
 // Connect connects to an existing spanner database and returns a Client
-func Connect(
-	ctx context.Context,
-	projectID, instanceID, dbName string,
-	opts ...option.ClientOption,
-) (*Client, error) {
+func Connect(ctx context.Context, projectID, instanceID, dbName string, opts ...option.ClientOption) (*Client, error) {
 	dbStr := fmt.Sprintf("projects/%s/instances/%s/databases/%s", projectID, instanceID, dbName)
 	client, err := spanner.NewClient(ctx, dbStr, opts...)
 	if err != nil {
@@ -53,10 +48,11 @@ func Connect(
 
 // MigrateUpSchema will migrate all the way up, applying all up migrations from the sourceURL.
 // This should be used for schema migrations. (DDL)
-func (s *Client) MigrateUpSchema(ctx context.Context, sourceURL string) error {
-	m, err := s.newMigrate(sourceURL)
+func (c *Client) MigrateUpSchema(ctx context.Context, sourceURL string) error {
+	logger.FromCtx(ctx).Infof("Applying schema migrations from %s", sourceURL)
+	m, err := c.newMigrate(sourceURL)
 	if err != nil {
-		return errors.Wrap(err, "migrateUp()")
+		return errors.Wrap(err, "Client.newMigrate()")
 	}
 
 	if err := m.Up(); err != nil {
@@ -66,21 +62,16 @@ func (s *Client) MigrateUpSchema(ctx context.Context, sourceURL string) error {
 	return nil
 }
 
-// MigrateUpData will apply all migrations without changing the migration version.
+// MigrateUpData will apply all migrations without changing the schema migration version in db.
 // This should be used for data migrations. (DML)
-func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error {
+func (c *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error {
 	var schemaMigration struct {
 		Version int64 `spanner:"Version"`
 		Dirty   bool  `spanner:"Dirty"`
 	}
-	_, err := s.client.ReadWriteTransaction(ctx,
+	_, err := c.client.ReadWriteTransaction(ctx,
 		func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-			err := spxscan.Get(
-				ctx,
-				txn,
-				&schemaMigration,
-				spanner.NewStatement("SELECT Version, Dirty FROM SchemaMigrations"),
-			)
+			err := spxscan.Get(ctx, txn, &schemaMigration, spanner.NewStatement("SELECT Version, Dirty FROM SchemaMigrations"))
 			if err != nil {
 				return errors.Wrap(err, "spxscan.Get()")
 			}
@@ -96,22 +87,23 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 			return txn.BufferWrite(m)
 		})
 	if err != nil {
-		return &database.Error{OrigErr: err}
+		return errors.Wrap(err, "failed to set schema migration version to default")
 	}
 
 	if schemaMigration.Dirty {
-		return errors.New("schema migration is dirty")
+		return errors.New("schema migration is dirty. Fix this before continuing")
 	}
 
-	log.Printf("Reset migrations from %d to %d", schemaMigration.Version, defaultSchemaVersion)
+	logger.FromCtx(ctx).Infof("Reset migrations from %d to %d", schemaMigration.Version, defaultSchemaVersion)
 
 	for _, sourceURL := range sourceURLs {
-		if err := s.migrateUp(sourceURL); err != nil {
-			return errors.Wrapf(err, "MigrateUpBlind: %s", sourceURL)
+		logger.FromCtx(ctx).Infof("Applying data migrations from %s", sourceURL)
+		if err := c.migrateUp(sourceURL); err != nil {
+			logger.FromCtx(ctx).Errorf("failed to apply data migrations from %s, migrations skipped...", sourceURL)
 		}
 	}
 
-	_, err = s.client.ReadWriteTransaction(ctx,
+	_, err = c.client.ReadWriteTransaction(ctx,
 		func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
 			m := []*spanner.Mutation{
 				spanner.Delete("SchemaMigrations", spanner.AllKeys()),
@@ -124,44 +116,25 @@ func (s *Client) MigrateUpData(ctx context.Context, sourceURLs ...string) error 
 			return txn.BufferWrite(m)
 		})
 	if err != nil {
-		log.Printf("ERROR: failed to reset schema migration version, please check the database")
+		logger.FromCtx(ctx).Errorf("failed to restore schema migration version, please check db and reset to version %d", schemaMigration.Version)
 
-		return errors.Wrap(err, "failed to reset schema migration version")
+		return errors.Wrap(err, "failed to restore schema migration version")
 	}
 
-	log.Printf("Reset migrations from %d to %d", defaultSchemaVersion, schemaMigration.Version)
+	logger.FromCtx(ctx).Infof("Reset migrations from %d to %d", defaultSchemaVersion, schemaMigration.Version)
 
 	return nil
 }
 
-func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error {
-	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
-	spannerInstance, err := spannerDriver.WithInstance(
-		spannerDriver.NewDB(*s.admin, *s.client),
-		conf,
-	)
+func (c *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error {
+	m, err := c.newMigrate(sourceURL)
 	if err != nil {
-		return errors.Wrap(err, "spannerDriver.WithInstance()")
-	}
-
-	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
-	if err != nil {
-		return errors.Wrapf(
-			err,
-			"migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s",
-			sourceURL,
-			s.dbStr,
-		)
+		return errors.Wrap(err, "Client.migrateUp()")
 	}
 	defer func() {
 		srcErr, dbErr := m.Close()
 		if srcErr != nil {
-			log.Printf(
-				"migrate.Migrate.Close() error: source error: %v, database error: %v: %s",
-				srcErr,
-				dbErr,
-				sourceURL,
-			)
+			log.Printf("migrate.Migrate.Close() error: source error: %v, database error: %v: %s", srcErr, dbErr, sourceURL)
 		}
 		if dbErr != nil {
 			log.Printf("migrate.Migrate.Close() error: database error: %v: %s", dbErr, sourceURL)
@@ -181,26 +154,17 @@ func (s *Client) MigrateDropSchema(ctx context.Context, sourceURL string) error 
 	return nil
 }
 
-func (s *Client) Close() {
-	for _, m := range s.migrateClients {
-		srcErr, dbErr := m.Close()
-		if srcErr != nil {
-			log.Println("failed to close source", srcErr)
-		}
-		if dbErr != nil {
-			log.Println("failed to close database", dbErr)
-		}
+func (c *Client) Close(ctx context.Context) {
+	if err := c.admin.Close(); err != nil {
+		logger.FromCtx(ctx).Errorf("failed to close admin client: %v", err)
 	}
-	if err := s.admin.Close(); err != nil {
-		log.Println("failed to close admin client", err)
-	}
-	s.client.Close()
+	c.client.Close()
 }
 
-func (s *Client) migrateUp(sourceURL string) error {
-	m, err := s.newMigrate(sourceURL)
+func (c *Client) migrateUp(sourceURL string) error {
+	m, err := c.newMigrate(sourceURL)
 	if err != nil {
-		return errors.Wrap(err, "migrateUp()")
+		return errors.Wrap(err, "Client.newMigrate()")
 	}
 
 	if err := m.Up(); err != nil {
@@ -210,11 +174,11 @@ func (s *Client) migrateUp(sourceURL string) error {
 	return nil
 }
 
-// newMigrate creates a new migrate instance and registers it with the migrateClients on Client
-func (s *Client) newMigrate(sourceURL string) (*migrate.Migrate, error) {
-	conf := &spannerDriver.Config{DatabaseName: s.dbStr, CleanStatements: true}
+// newMigrate creates a new migrate instance
+func (c *Client) newMigrate(sourceURL string) (*migrate.Migrate, error) {
+	conf := &spannerDriver.Config{DatabaseName: c.dbStr, CleanStatements: true}
 	spannerInstance, err := spannerDriver.WithInstance(
-		spannerDriver.NewDB(*s.admin, *s.client),
+		spannerDriver.NewDB(*c.admin, *c.client),
 		conf,
 	)
 	if err != nil {
@@ -223,15 +187,8 @@ func (s *Client) newMigrate(sourceURL string) (*migrate.Migrate, error) {
 
 	m, err := migrate.NewWithDatabaseInstance(sourceURL, "spanner", spannerInstance)
 	if err != nil {
-		return nil, errors.Wrapf(
-			err,
-			"migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s",
-			sourceURL,
-			s.dbStr,
-		)
+		return nil, errors.Wrapf(err, "migrate.NewWithDatabaseInstance(): fileURL=%s, db=%s", sourceURL, c.dbStr)
 	}
-
-	s.migrateClients = append(s.migrateClients, m)
 
 	return m, nil
 }

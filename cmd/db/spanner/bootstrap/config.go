@@ -39,6 +39,6 @@ func newConfig(ctx context.Context) (*config, error) {
 	}, nil
 }
 
-func (c *config) close() {
-	c.migrateClient.Close()
+func (c *config) close(ctx context.Context) {
+	c.migrateClient.Close(ctx)
 }

@@ -3,7 +3,6 @@ package bootstrap
 import (
 	"context"
 	"log"
-	"strings"
 
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -63,7 +62,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
-	defer conf.close()
+	defer conf.close(ctx)
 
 	if c.SchemaMigrationDir != "" {
 		log.Printf("Running bootstrap migrations with schema dir: %s \n", c.SchemaMigrationDir)
@@ -76,9 +75,8 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 		log.Println("No schema migration directory specified, skipping schema migrations")
 	}
 
-	log.Printf("Running bootstrap data migrations [%s]", strings.Join(c.dataMigrationDirs, ", "))
-	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDirs...); err != nil &&
-		!errors.Is(err, migrate.ErrNoChange) {
+	log.Println("Running bootstrap data migrations")
+	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDirs...); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to failed to run migrations")
 	} else if errors.Is(err, migrate.ErrNoChange) {
 		log.Println("No new Migration scripts found. No changes applied.")

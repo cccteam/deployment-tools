@@ -24,12 +24,7 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
 
-	db, err := spannermigrate.Connect(
-		ctx,
-		envVars.SpannerProjectID,
-		envVars.SpannerInstanceID,
-		envVars.SpannerDatabaseName,
-	)
+	db, err := spannermigrate.Connect(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName)
 	if err != nil {
 		return nil, errors.Wrapf(err, "ConnectToSpanner()")
 	}
@@ -39,6 +34,6 @@ func newConfig(ctx context.Context) (*config, error) {
 	}, nil
 }
 
-func (c *config) close() {
-	c.migrateClient.Close()
+func (c *config) close(ctx context.Context) {
+	c.migrateClient.Close(ctx)
 }
