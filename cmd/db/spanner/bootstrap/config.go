@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"log"
 
 	dbinitiator "github.com/cccteam/db-initiator"
 	"github.com/go-playground/errors/v5"
@@ -42,5 +43,7 @@ func newConfig(ctx context.Context) (*config, error) {
 }
 
 func (c *config) close() {
-	c.migrateClient.Close()
+	if err := c.migrateClient.Close(); err != nil {
+		log.Printf("failed to close migrateClient: %v", err)
+	}
 }
