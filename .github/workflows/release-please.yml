@@ -59,6 +59,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Build binary
+        id: build-binary
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -68,13 +69,10 @@ jobs:
             OUTPUT_NAME="${OUTPUT_NAME}.exe"
           fi
           go build -ldflags="-s -w" -o "${OUTPUT_NAME}" .
+          echo "OUTPUT_NAME=${OUTPUT_NAME}" >> "$GITHUB_ENV"
 
       - name: Upload release asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          OUTPUT_NAME=${{ env.BINARY_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            OUTPUT_NAME="${OUTPUT_NAME}.exe"
-          fi
-          gh release upload ${{ needs.release-please.outputs.tag_name }} "${OUTPUT_NAME}" --clobber
+          gh release upload ${{ needs.release-please.outputs.tag_name }} "${{ steps.build-binary.outputs.OUTPUT_NAME }}" --clobber
