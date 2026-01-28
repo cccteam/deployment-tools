@@ -64,9 +64,9 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	if !ok {
 		return errors.New("_APP_ENV environment variable is not set. This will not run if it is not set")
 	}
-	allowedEnvsStr, ok := os.LookupEnv("_ALLOWED_ENVS")
+	allowedEnvsStr, ok := os.LookupEnv("_DB_DROP_ENV_WHITELIST")
 	if !ok {
-		return errors.New("_ALLOWED_ENVS environment variable is not set. This will not run if it is not set")
+		return errors.New("_DB_DROP_ENV_WHITELIST environment variable is not set. This will not run if it is not set")
 	}
 	allowedEnvs := make(map[string]bool)
 	for env := range strings.SplitSeq(allowedEnvsStr, ",") {
