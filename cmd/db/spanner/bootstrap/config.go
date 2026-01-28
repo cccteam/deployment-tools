@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"context"
 
-	"github.com/cccteam/deployment-tools/internal/spannermigrate"
+	dbinitiator "github.com/cccteam/db-initiator"
 	"github.com/go-playground/errors/v5"
 	"github.com/sethvargo/go-envconfig"
 	"google.golang.org/api/option"
@@ -16,7 +16,7 @@ type envConfig struct {
 }
 
 type config struct {
-	migrateClient *spannermigrate.Client
+	migrateClient *dbinitiator.SpannerMigrator
 }
 
 func newConfig(ctx context.Context) (*config, error) {
@@ -25,7 +25,7 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
 
-	db, err := spannermigrate.Connect(
+	db, err := dbinitiator.NewSpannerMigrator(
 		ctx,
 		envVars.SpannerProjectID,
 		envVars.SpannerInstanceID,
@@ -41,6 +41,6 @@ func newConfig(ctx context.Context) (*config, error) {
 	}, nil
 }
 
-func (c *config) close(ctx context.Context) {
-	c.migrateClient.Close(ctx)
+func (c *config) close() {
+	c.migrateClient.Close()
 }
