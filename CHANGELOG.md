@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/cccteam/deployment-tools/compare/v0.0.1...v0.0.2) (2026-01-29)
+
+
+### Code Refactoring
+
+* Use db-initiator instead of internal pkg ([#4](https://github.com/cccteam/deployment-tools/issues/4)) ([8e04a74](https://github.com/cccteam/deployment-tools/commit/8e04a7422ebf475906eec269e64ed8734325c2b5))
+
 ## 0.0.1 (2026-01-07)
 
 
