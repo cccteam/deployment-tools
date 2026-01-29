@@ -2,8 +2,9 @@ package dropschema
 
 import (
 	"context"
+	"log"
 
-	"github.com/cccteam/deployment-tools/internal/spannermigrate"
+	dbinitiator "github.com/cccteam/db-initiator"
 	"github.com/go-playground/errors/v5"
 	"github.com/sethvargo/go-envconfig"
 	"google.golang.org/api/option"
@@ -16,7 +17,7 @@ type envConfig struct {
 }
 
 type config struct {
-	migrateClient *spannermigrate.Client
+	migrateClient *dbinitiator.SpannerMigrator
 }
 
 func newConfig(ctx context.Context) (*config, error) {
@@ -25,9 +26,9 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
 
-	db, err := spannermigrate.Connect(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName, option.WithTelemetryDisabled())
+	db, err := dbinitiator.NewSpannerMigrator(ctx, envVars.SpannerProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseName, option.WithTelemetryDisabled())
 	if err != nil {
-		return nil, errors.Wrapf(err, "ConnectToSpanner()")
+		return nil, errors.Wrapf(err, "dbinitiator.NewSpannerMigrator()")
 	}
 
 	return &config{
@@ -35,6 +36,8 @@ func newConfig(ctx context.Context) (*config, error) {
 	}, nil
 }
 
-func (c *config) close(ctx context.Context) {
-	c.migrateClient.Close(ctx)
+func (c *config) close() {
+	if err := c.migrateClient.Close(); err != nil {
+		log.Printf("failed to close migrateClient: %v", err)
+	}
 }

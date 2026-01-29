@@ -5,9 +5,8 @@ import (
 	"log"
 
 	"github.com/go-playground/errors/v5"
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/spf13/cobra"
-	"github.com/zredinger-ccc/migrate/v4"
-	_ "github.com/zredinger-ccc/migrate/v4/source/file" // up/down script file source driver for the migrate package
 )
 
 // Command returns the configured command
@@ -18,7 +17,7 @@ func Command(ctx context.Context) *cobra.Command {
 }
 
 type command struct {
-	dataMigrationDirs  []string
+	dataMigrationDir   string
 	SchemaMigrationDir string
 }
 
@@ -26,8 +25,8 @@ type command struct {
 func (c *command) Setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bootstrap",
-		Short: "Bootstrap database",
-		Long:  "Bootstrap database by running specified migrations",
+		Short: "Bootstrap database, schema and data migrations",
+		Long:  "Bootstrap database by running specified migrations. This will first run the schema migrations (if they are provided), followed by data migrations",
 		RunE: func(cmd *cobra.Command, _ []string) (err error) {
 			if err := c.ValidateFlags(cmd); err != nil {
 				return err
@@ -42,18 +41,14 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 	}
 
 	cmd.Flags().
-		StringVarP(&c.SchemaMigrationDir, "schema-dir", "s", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
+		StringVar(&c.SchemaMigrationDir, "schema-dir", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
 	cmd.Flags().
-		StringSliceVar(&c.dataMigrationDirs, "data-dirs", []string{"file://bootstrap/testdata"}, "Directories containing data migration files, using the file URI syntax")
+		StringVar(&c.dataMigrationDir, "data-dir", "file://bootstrap/testdata", "Directory containing data migration files, using the file URI syntax")
 
 	return cmd
 }
 
 func (c *command) ValidateFlags(cmd *cobra.Command) error {
-	if len(c.dataMigrationDirs) == 0 {
-		return errors.New("at least one data-dir flag is required")
-	}
-
 	return nil
 }
 
@@ -62,7 +57,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
-	defer conf.close(ctx)
+	defer conf.close()
 
 	if c.SchemaMigrationDir != "" {
 		log.Printf("Running bootstrap migrations with schema dir: %s \n", c.SchemaMigrationDir)
@@ -76,7 +71,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	}
 
 	log.Println("Running bootstrap data migrations")
-	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDirs...); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to failed to run migrations")
 	} else if errors.Is(err, migrate.ErrNoChange) {
 		log.Println("No new Migration scripts found. No changes applied.")

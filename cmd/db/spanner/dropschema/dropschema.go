@@ -4,11 +4,12 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/go-playground/errors/v5"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/source/file" // up/down script file source driver for the migrate package
 	"github.com/spf13/cobra"
-	"github.com/zredinger-ccc/migrate/v4"
-	_ "github.com/zredinger-ccc/migrate/v4/source/file" // up/down script file source driver for the migrate package
 )
 
 // Command returns the configured command
@@ -56,20 +57,28 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
-	defer conf.close(ctx)
+	defer conf.close()
 
-	// catchall to verify whether _APP_ENV is set and in prod
+	// verify _APP_ENV is set and matches one of the allowed environments
 	appEnv, ok := os.LookupEnv("_APP_ENV")
 	if !ok {
 		return errors.New("_APP_ENV environment variable is not set. This will not run if it is not set")
 	}
-	if appEnv == "prd" || appEnv == "prod" || appEnv == "production" {
-		return errors.New("dropping schema in production environment is not allowed")
+	allowedEnvsStr, ok := os.LookupEnv("_DB_DROP_ENV_WHITELIST")
+	if !ok {
+		return errors.New("_DB_DROP_ENV_WHITELIST environment variable is not set. This will not run if it is not set")
+	}
+	allowedEnvs := make(map[string]bool)
+	for env := range strings.SplitSeq(allowedEnvsStr, ",") {
+		allowedEnvs[strings.TrimSpace(env)] = true
+	}
+	if !allowedEnvs[appEnv] {
+		return errors.Newf("dropping schema is only allowed in allowed environments (%s), current environment: %s", allowedEnvsStr, appEnv)
 	}
 
 	log.Println("Dropping schema tables...")
 
-	if err := conf.migrateClient.MigrateDropSchema(ctx, c.SchemaMigrationDir); err != nil &&
+	if err := conf.migrateClient.MigrateDropSchema(ctx); err != nil &&
 		!errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "failed to drop schema")
 	}
