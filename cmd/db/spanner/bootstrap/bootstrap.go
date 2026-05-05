@@ -2,8 +2,13 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/cccteam/logger"
 	"github.com/go-playground/errors/v5"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/spf13/cobra"
@@ -17,8 +22,8 @@ func Command(ctx context.Context) *cobra.Command {
 }
 
 type command struct {
-	dataMigrationDir   string
-	SchemaMigrationDir string
+	dataMigrationDirs   []string
+	SchemaMigrationDirs []string
 }
 
 // Setup returns the configured cli command
@@ -41,9 +46,9 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 	}
 
 	cmd.Flags().
-		StringVar(&c.SchemaMigrationDir, "schema-dir", "file://schema/migrations", "Directory containing schema migration files, using the file URI syntax")
+		StringSliceVar(&c.SchemaMigrationDirs, "schema-dir", []string{"file://schema/migrations"}, "Directories containing schema migration files, using the file URI syntax")
 	cmd.Flags().
-		StringVar(&c.dataMigrationDir, "data-dir", "file://bootstrap/testdata", "Directory containing data migration files, using the file URI syntax")
+		StringSliceVar(&c.dataMigrationDirs, "data-dir", []string{"file://bootstrap/testdata"}, "Directories containing data migration files, using the file URI syntax")
 
 	return cmd
 }
@@ -59,24 +64,113 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	}
 	defer conf.close()
 
-	if c.SchemaMigrationDir != "" {
-		log.Printf("Running bootstrap migrations with schema dir: %s \n", c.SchemaMigrationDir)
-		if err := conf.migrateClient.MigrateUpSchema(ctx, c.SchemaMigrationDir); err != nil &&
-			!errors.Is(err, migrate.ErrNoChange) {
-			return errors.Wrap(err, "failed to run schema migrations")
-		}
-		log.Println("Schema migrations successful")
-	} else {
+	switch len(c.SchemaMigrationDirs) {
+	case 0:
 		log.Println("No schema migration directory specified, skipping schema migrations")
+	case 1:
+		if err := migrateSchema(ctx, conf, c.SchemaMigrationDirs[0]); err != nil {
+			return errors.Wrap(err, "migrateSchema()")
+		}
+	default:
+		if err := linkAndMigrateDirs(ctx, conf, c.SchemaMigrationDirs, "schema"); err != nil {
+			return err
+		}
 	}
 
-	log.Println("Running bootstrap data migrations")
-	if err := conf.migrateClient.MigrateUpData(ctx, c.dataMigrationDir); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return errors.Wrap(err, "failed to failed to run migrations")
+	switch len(c.dataMigrationDirs) {
+	case 0:
+		log.Println("No new Data Migration scripts found. No changes applied.")
+	case 1:
+		if err := migrateData(ctx, conf, c.dataMigrationDirs[0]); err != nil {
+			return errors.Wrap(err, "migrateData()")
+		}
+	default:
+		if err := linkAndMigrateDirs(ctx, conf, c.dataMigrationDirs, "data"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func linkAndMigrateDirs(ctx context.Context, conf *config, migrationSourceURLs []string, migrateType string) error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return errors.Wrap(err, "os.Getwd()")
+	}
+
+	tempAllMigrationsDirPath, err := os.MkdirTemp(cwd, "all_migrations")
+	if err != nil {
+		return errors.Wrap(err, "os.MkdirTemp()")
+	}
+	defer func() {
+		if err := os.RemoveAll(tempAllMigrationsDirPath); err != nil {
+			logger.FromCtx(ctx).Error(err)
+		}
+	}()
+
+	for _, migrationSourceURL := range migrationSourceURLs {
+		migrationDirClean := strings.TrimPrefix(migrationSourceURL, "file://")
+		migrationDir, err := os.ReadDir(migrationDirClean)
+		if err != nil {
+			return errors.Wrap(err, "os.ReadDir()")
+		}
+
+		for _, dirEntry := range migrationDir {
+			if dirEntry.IsDir() {
+				continue
+			}
+
+			oldPath := filepath.Join(migrationDirClean, dirEntry.Name())
+			newPath := filepath.Join(tempAllMigrationsDirPath, dirEntry.Name())
+
+			if err := os.Link(oldPath, newPath); err != nil {
+				return errors.Wrap(err, "os.Link()")
+			}
+		}
+	}
+
+	switch migrateType {
+	case "schema":
+		if err := migrateSchema(ctx, conf, fmt.Sprintf("file://%s", tempAllMigrationsDirPath)); err != nil {
+			return errors.Wrap(err, "migrateSchema()")
+		}
+
+	case "data":
+		if err := migrateData(ctx, conf, fmt.Sprintf("file://%s", tempAllMigrationsDirPath)); err != nil {
+			return errors.Wrap(err, "migrateData()")
+		}
+
+	default:
+		return errors.Newf("expected \"schema\" or \"data\" migration type, got %q", migrateType)
+	}
+
+	return nil
+}
+
+func migrateSchema(ctx context.Context, conf *config, migrationSourceURL string) error {
+	log.Printf("Running bootstrap migrations with schema dir: %s \n", migrationSourceURL)
+	if err := conf.migrateClient.MigrateUpSchema(ctx, migrationSourceURL); err != nil &&
+		!errors.Is(err, migrate.ErrNoChange) {
+		return errors.Wrap(err, "failed to run schema migrations")
 	} else if errors.Is(err, migrate.ErrNoChange) {
 		log.Println("No new Migration scripts found. No changes applied.")
 	} else {
-		log.Println("Ran data migrations successfully")
+		log.Println("Schema migrations successful")
+	}
+
+	return nil
+}
+
+func migrateData(ctx context.Context, conf *config, migrationSourceURL string) error {
+	log.Println("Running bootstrap data migrations")
+	if err := conf.migrateClient.MigrateUpData(ctx, migrationSourceURL); err != nil &&
+		!errors.Is(err, migrate.ErrNoChange) {
+		return errors.Wrap(err, "failed to run data migrations")
+	} else if errors.Is(err, migrate.ErrNoChange) {
+		log.Println("No new Migration scripts found. No changes applied.")
+	} else {
+		log.Println("Schema migrations successful")
 	}
 
 	return nil
