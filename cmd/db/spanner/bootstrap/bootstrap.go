@@ -71,7 +71,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 			return errors.Wrap(err, "migrateSchema()")
 		}
 	default:
-		if err := linkAndMigrateDirs(ctx, conf, c.SchemaMigrationDirs, "schema"); err != nil {
+		if err := linkAndMigrateDirs(ctx, conf, c.SchemaMigrationDirs, schemaMigrateType); err != nil {
 			return err
 		}
 	}
@@ -84,7 +84,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 			return errors.Wrap(err, "migrateData()")
 		}
 	default:
-		if err := linkAndMigrateDirs(ctx, conf, c.dataMigrationDirs, "data"); err != nil {
+		if err := linkAndMigrateDirs(ctx, conf, c.dataMigrationDirs, dataMigrateType); err != nil {
 			return err
 		}
 	}
@@ -92,7 +92,16 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 	return nil
 }
 
-func linkAndMigrateDirs(ctx context.Context, conf *config, migrationSourceURLs []string, migrateType string) error {
+type migrateType string
+
+const (
+	schemaMigrateType migrateType = "schema"
+	dataMigrateType   migrateType = "data"
+)
+
+// linkAndMigrateDirs expects migrateType to be `schema` or `data`, corresponding to the schema migrations and
+// data migrations tables, respectively.
+func linkAndMigrateDirs(ctx context.Context, conf *config, migrationSourceURLs []string, mt migrateType) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return errors.Wrap(err, "os.Getwd()")
@@ -129,19 +138,19 @@ func linkAndMigrateDirs(ctx context.Context, conf *config, migrationSourceURLs [
 		}
 	}
 
-	switch migrateType {
-	case "schema":
+	switch mt {
+	case schemaMigrateType:
 		if err := migrateSchema(ctx, conf, fmt.Sprintf("file://%s", tempAllMigrationsDirPath)); err != nil {
 			return errors.Wrap(err, "migrateSchema()")
 		}
 
-	case "data":
+	case dataMigrateType:
 		if err := migrateData(ctx, conf, fmt.Sprintf("file://%s", tempAllMigrationsDirPath)); err != nil {
 			return errors.Wrap(err, "migrateData()")
 		}
 
 	default:
-		return errors.Newf("expected \"schema\" or \"data\" migration type, got %q", migrateType)
+		return errors.Newf("expected %q or %q migration type, got %q", schemaMigrateType, dataMigrateType, mt)
 	}
 
 	return nil
