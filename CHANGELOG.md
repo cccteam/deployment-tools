@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/cccteam/deployment-tools/compare/v0.0.3...v0.0.4) (2026-05-07)
+
+
+### Features
+
+* support multiple schema migration directories ([#13](https://github.com/cccteam/deployment-tools/issues/13)) ([5c7db57](https://github.com/cccteam/deployment-tools/commit/5c7db573d1715bbd61c5ac731234978238a6fe11))
+
 ## [0.0.3](https://github.com/cccteam/deployment-tools/compare/v0.0.2...v0.0.3) (2026-01-29)
 
 
