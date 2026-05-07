@@ -78,7 +78,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 
 	switch len(c.dataMigrationDirs) {
 	case 0:
-		log.Println("No new Data Migration scripts found. No changes applied.")
+		log.Println("No Data Migration scripts provided. No changes applied.")
 	case 1:
 		if err := migrateData(ctx, conf, c.dataMigrationDirs[0]); err != nil {
 			return errors.Wrap(err, "migrateData()")
@@ -169,7 +169,7 @@ func migrateData(ctx context.Context, conf *config, migrationSourceURL string) e
 	} else if errors.Is(err, migrate.ErrNoChange) {
 		log.Println("No new Migration scripts found. No changes applied.")
 	} else {
-		log.Println("Schema migrations successful")
+		log.Println("Data migrations successful")
 	}
 
 	return nil
