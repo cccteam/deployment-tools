@@ -9,10 +9,10 @@ concurrency:
 
 jobs:
   semantic-pull-request-title:
-    uses: cccteam/github-workflows/.github/workflows/semantic-pull-request-title.yml@v5.18.1
+    uses: cccteam/github-workflows/.github/workflows/semantic-pull-request-title.yml@c60f35207fb35c8c10a2bc44df20efecebcbe665 # v6.1.0
 
   golang-ci:
-    uses: cccteam/github-workflows/.github/workflows/golang-ci.yml@v5.18.1
+    uses: cccteam/github-workflows/.github/workflows/golang-ci.yml@c60f35207fb35c8c10a2bc44df20efecebcbe665 # v6.1.0
     with:
       build-tags: '["", "dev,skipAuth"]'
-      golangci-lint-version: 'v2.7.2'
+      golangci-lint-version: "v2.10.1"
