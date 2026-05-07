@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cccteam/logger"
 	"github.com/go-playground/errors/v5"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/spf13/cobra"
@@ -105,7 +104,7 @@ func linkAndMigrateDirs(ctx context.Context, conf *config, migrationSourceURLs [
 	}
 	defer func() {
 		if err := os.RemoveAll(tempAllMigrationsDirPath); err != nil {
-			logger.FromCtx(ctx).Error(err)
+			log.Printf("error: %v\n", errors.Wrap(err, "os.RemoveAll()"))
 		}
 	}()
 
