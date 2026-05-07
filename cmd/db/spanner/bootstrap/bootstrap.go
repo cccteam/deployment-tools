@@ -45,9 +45,9 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 	}
 
 	cmd.Flags().
-		StringSliceVar(&c.SchemaMigrationDirs, "schema-dir", []string{"file://schema/migrations"}, "Directories containing schema migration files, using the file URI syntax")
+		StringSliceVar(&c.SchemaMigrationDirs, "schema-dir", []string{"file://schema/migrations"}, "Directories containing schema migration files, using the file URI syntax. Multiple directories should be comma-separated. When using multiple directories the first migration version should resume where the previous directory ended.")
 	cmd.Flags().
-		StringSliceVar(&c.dataMigrationDirs, "data-dir", []string{"file://bootstrap/testdata"}, "Directories containing data migration files, using the file URI syntax")
+		StringSliceVar(&c.dataMigrationDirs, "data-dir", []string{"file://bootstrap/testdata"}, "Directories containing data migration files, using the file URI syntax. Multiple directories should be comma-separated. When using multiple directories the first migration version should resume where the previous directory ended.")
 
 	return cmd
 }
