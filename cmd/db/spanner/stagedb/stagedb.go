@@ -21,13 +21,13 @@ type command struct {
 
 func (c *command) Setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "stage-db [source] [destination]",
+		Use:   "stage-db [target]",
 		Short: "Runs backup/restore on database",
 		Long:  "Runs backup/restore on database",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			source, destination := args[0], args[1]
-			if err := c.Run(ctx, cmd, source, destination); err != nil {
+			target := args[0]
+			if err := c.Run(ctx, cmd, target); err != nil {
 				return errors.Wrap(err, "command.Run()")
 			}
 
@@ -42,14 +42,14 @@ func (c *command) ValidateFlags(cmd *cobra.Command) error {
 	return nil
 }
 
-func (c *command) Run(ctx context.Context, cmd *cobra.Command, source, destination string) error {
-	db, err := newConfig(ctx)
+func (c *command) Run(ctx context.Context, cmd *cobra.Command, target string) error {
+	db, err := newConfig(ctx, target)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
 	defer db.spanner.Close()
 
-	if err = db.spanner.BackupRestore(ctx, source, destination); err != nil {
+	if err = db.spanner.BackupRestore(ctx, db.spanner.SourceDb, target); err != nil {
 		return err
 	}
 
