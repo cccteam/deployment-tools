@@ -2,6 +2,7 @@ package stagedb
 
 import (
 	"context"
+	"fmt"
 
 	dbinitiator "github.com/cccteam/db-initiator"
 	"github.com/go-playground/errors/v5"
@@ -16,7 +17,7 @@ type envConfig struct {
 }
 
 type config struct {
-	client *dbinitiator.SpannerBackup
+	spanner *dbinitiator.SpannerBackup
 }
 
 func newConfig(ctx context.Context) (*config, error) {
@@ -35,7 +36,9 @@ func newConfig(ctx context.Context) (*config, error) {
 		return nil, errors.Wrap(err, "spannermigrate.Connect()")
 	}
 
+	fmt.Println(db)
+
 	return &config{
-		client: db,
+		spanner: db,
 	}, nil
 }

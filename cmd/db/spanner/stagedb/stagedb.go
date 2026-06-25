@@ -47,13 +47,9 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command, source, destinati
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
-	defer db.client.Close()
+	defer db.spanner.Close()
 
-	if err = db.client.Backup(ctx, source); err != nil {
-		return err
-	}
-
-	if err = db.client.Restore(ctx, destination); err != nil {
+	if err = db.spanner.BackupRestore(ctx, source, destination); err != nil {
 		return err
 	}
 
