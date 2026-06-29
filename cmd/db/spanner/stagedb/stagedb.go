@@ -49,7 +49,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command, target string) er
 	}
 	defer db.spanner.Close()
 
-	if err = db.spanner.BackupRestore(ctx, db.spanner.SourceDb, target); err != nil {
+	if err = db.spanner.BackupRestore(ctx, target); err != nil {
 		return err
 	}
 
