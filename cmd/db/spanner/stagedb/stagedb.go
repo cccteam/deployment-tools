@@ -53,11 +53,11 @@ func backupRestore(ctx context.Context, db *config, destination string) error {
 	if err != nil {
 		log.Println("error backing up ", err)
 
-		return err
+		return errors.Wrap(err, "Backup()")
 	}
 
 	if err := db.spanner.Restore(ctx, backup, destination); err != nil {
-		return err
+		return errors.Wrap(err, "Restore()")
 	}
 
 	return nil
