@@ -111,7 +111,7 @@ require (
 
 require (
 	cloud.google.com/go/spanner v1.91.0 // indirect
-	github.com/cccteam/db-initiator v0.3.6
+	github.com/cccteam/db-initiator v0.3.11-0.20260630161215-48b65715b308
 	github.com/cccteam/logger v0.1.21 // indirect
 	github.com/go-playground/errors/v5 v5.4.0
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -120,5 +120,3 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10 // indirect
 )
-
-replace github.com/cccteam/db-initiator => /Users/nick.aspenwall/code/cccteam/db-initiator

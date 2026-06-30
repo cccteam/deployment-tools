@@ -36,6 +36,10 @@ github.com/MakeNowJust/heredoc/v2 v2.0.1 h1:rlCHh70XXXv7toz95ajQWOWQnN4WNLt0TdpZ
 github.com/MakeNowJust/heredoc/v2 v2.0.1/go.mod h1:6/2Abh5s+hc3g9nbWLe9ObDIOhaRrqsyY9MWy+4JdRM=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
+github.com/cccteam/db-initiator v0.3.6 h1:7r/uXklUIl26qYujklHVERGo1yDo3bgg47xvZtaYFqU=
+github.com/cccteam/db-initiator v0.3.6/go.mod h1:13in5jIpSNKz+Tmhb3fG8RXFDBzUJmpzmpcYEHzXXho=
+github.com/cccteam/db-initiator v0.3.11-0.20260630161215-48b65715b308 h1:QdxezHowzY92SNQaDPNHnTsj44vxUE4Kbrb9X0wgLlk=
+github.com/cccteam/db-initiator v0.3.11-0.20260630161215-48b65715b308/go.mod h1:h9fSl3eIyqR9qwvDnqtYjmeX28ddwof1JZ/42Sh7iaM=
 github.com/cccteam/logger v0.1.21 h1:YFTGLgf4miZbP+W7SJAHFlz/JkwKt8dMf4Sb6JaI7sI=
 github.com/cccteam/logger v0.1.21/go.mod h1:3XkMtPRqIsoCXTSzFV+ChMJ/bMooadawZFGkICvZt3I=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
