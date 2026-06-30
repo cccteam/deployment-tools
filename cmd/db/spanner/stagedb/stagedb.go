@@ -10,17 +10,12 @@ import (
 
 // Command returns the configured command
 func Command(ctx context.Context) *cobra.Command {
-	cli := command{}
+	cli := setup(ctx)
 
-	return cli.Setup(ctx)
+	return cli
 }
 
-type command struct {
-	sourceDatabase string
-	targetDatabase string
-}
-
-func (c *command) Setup(ctx context.Context) *cobra.Command {
+func setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stage-db [target]",
 		Short: "Runs backup/restore on database",
@@ -28,7 +23,7 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			target := args[0]
-			if err := c.Run(ctx, cmd, target); err != nil {
+			if err := run(ctx, target); err != nil {
 				return errors.Wrap(err, "command.Run()")
 			}
 
@@ -39,25 +34,21 @@ func (c *command) Setup(ctx context.Context) *cobra.Command {
 	return cmd
 }
 
-func (c *command) ValidateFlags(cmd *cobra.Command) error {
-	return nil
-}
-
-func (c *command) Run(ctx context.Context, cmd *cobra.Command, target string) error {
+func run(ctx context.Context, target string) error {
 	db, err := newConfig(ctx, target)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
 	defer db.spanner.Close()
 
-	if err = c.backupRestore(ctx, db, target); err != nil {
+	if err := backupRestore(ctx, db, target); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (c *command) backupRestore(ctx context.Context, db *config, destination string) error {
+func backupRestore(ctx context.Context, db *config, destination string) error {
 	backup, err := db.spanner.Backup(ctx)
 	if err != nil {
 		log.Println("error backing up ", err)
