@@ -2,6 +2,7 @@ package stagedb
 
 import (
 	"context"
+	"log"
 
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -49,7 +50,22 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command, target string) er
 	}
 	defer db.spanner.Close()
 
-	if err = db.spanner.BackupRestore(ctx, target); err != nil {
+	if err = c.backupRestore(ctx, db, target); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *command) backupRestore(ctx context.Context, db *config, destination string) error {
+	backup, err := db.spanner.Backup(ctx)
+	if err != nil {
+		log.Println("error backing up ", err)
+
+		return err
+	}
+
+	if err := db.spanner.Restore(ctx, backup, destination); err != nil {
 		return err
 	}
 
