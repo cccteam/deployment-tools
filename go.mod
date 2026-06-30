@@ -7,7 +7,6 @@ replace github.com/golang-migrate/migrate/v4 v4.19.1 => github.com/jtwatson/migr
 require (
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	google.golang.org/api v0.281.0
-	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -106,11 +105,12 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/grpc v1.81.1 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
-	cloud.google.com/go/spanner v1.91.0
+	cloud.google.com/go/spanner v1.91.0 // indirect
 	github.com/cccteam/db-initiator v0.3.6
 	github.com/cccteam/logger v0.1.21 // indirect
 	github.com/go-playground/errors/v5 v5.4.0
