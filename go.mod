@@ -95,15 +95,12 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
-	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260625142307-59b4966ccb57 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.47.0 // indirect
 	google.golang.org/genproto v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
@@ -114,7 +111,7 @@ require (
 
 require (
 	cloud.google.com/go/spanner v1.91.0 // indirect
-	github.com/cccteam/db-initiator v0.3.11-0.20260630161215-48b65715b308
+	github.com/cccteam/db-initiator v0.3.11
 	github.com/cccteam/logger v0.1.21 // indirect
 	github.com/go-playground/errors/v5 v5.4.0
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
