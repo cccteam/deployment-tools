@@ -23,7 +23,7 @@ func setup(ctx context.Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			target := args[0]
 			if err := run(ctx, target); err != nil {
-				return errors.Wrap(err, "command.Run()")
+				return errors.Wrap(err, "run()")
 			}
 
 			return nil
@@ -47,13 +47,13 @@ func run(ctx context.Context, target string) error {
 	return nil
 }
 
-func backupRestore(ctx context.Context, db *config, destination string) error {
+func backupRestore(ctx context.Context, db *config, target string) error {
 	backup, err := db.spanner.Backup(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Backup()")
 	}
 
-	if err := db.spanner.Restore(ctx, backup, destination); err != nil {
+	if err := db.spanner.Restore(ctx, backup, target); err != nil {
 		return errors.Wrap(err, "Restore()")
 	}
 
