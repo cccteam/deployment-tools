@@ -2,7 +2,6 @@ package stagedb
 
 import (
 	"context"
-	"log"
 
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -17,9 +16,9 @@ func Command(ctx context.Context) *cobra.Command {
 
 func setup(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "stage-db [target]",
-		Short: "Runs backup/restore on database",
-		Long:  "Runs backup/restore on database",
+		Use:   "stagedb [target]",
+		Short: "Back up and restore given source Spanner database to provided target database",
+		Long:  "Backs up the configured source Spanner database and restores it to the provided target database",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			target := args[0]
@@ -51,8 +50,6 @@ func run(ctx context.Context, target string) error {
 func backupRestore(ctx context.Context, db *config, destination string) error {
 	backup, err := db.spanner.Backup(ctx)
 	if err != nil {
-		log.Println("error backing up ", err)
-
 		return errors.Wrap(err, "Backup()")
 	}
 

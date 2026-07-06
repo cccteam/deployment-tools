@@ -31,7 +31,7 @@ func newConfig(ctx context.Context, targetDb string) (*config, error) {
 		targetDb,
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "spannermigrate.Connect()")
+		return nil, errors.Wrap(err, "dbinitiator.NewSpannerBackup()")
 	}
 
 	return &config{
