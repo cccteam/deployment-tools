@@ -2,6 +2,9 @@ package stagedb
 
 import (
 	"context"
+	"log"
+	"os"
+	"strings"
 
 	"github.com/go-playground/errors/v5"
 	"github.com/spf13/cobra"
@@ -48,6 +51,15 @@ func run(ctx context.Context, target string) error {
 }
 
 func backupRestore(ctx context.Context, db *config, target string) error {
+	if strings.Contains(target, "prd") || strings.Contains(target, "prod") {
+		return errors.Newf("will not target a production database. target: %s", target)
+	}
+	sourceDb, ok := os.LookupEnv("GOOGLE_CLOUD_SPANNER_DATABASE_NAME")
+	if !ok {
+		return errors.New("GOOGLE_CLOUD_SPANNER_DATABASE_NAME required environment variable not found.")
+	}
+	log.Printf("source database set via environment variable: %s", sourceDb)
+
 	backup, err := db.spanner.Backup(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Backup()")
