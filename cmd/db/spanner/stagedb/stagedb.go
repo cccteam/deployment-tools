@@ -51,8 +51,9 @@ func run(ctx context.Context, target string) error {
 }
 
 func backupRestore(ctx context.Context, db *config, target string) error {
-	if strings.Contains(target, "prd") || strings.Contains(target, "prod") {
-		return errors.Newf("will not target a production database. target: %s", target)
+	normalizedTarget := strings.ToLower(target)
+	if strings.Contains(normalizedTarget, "prd") || strings.Contains(normalizedTarget, "prod") {
+		return errors.Newf("will not target a production database. target: %s", normalizedTarget)
 	}
 	sourceDb, ok := os.LookupEnv("GOOGLE_CLOUD_SPANNER_DATABASE_NAME")
 	if !ok {
@@ -65,7 +66,7 @@ func backupRestore(ctx context.Context, db *config, target string) error {
 		return errors.Wrap(err, "Backup()")
 	}
 
-	if err := db.spanner.Restore(ctx, backup, target); err != nil {
+	if err := db.spanner.Restore(ctx, backup, normalizedTarget); err != nil {
 		return errors.Wrap(err, "Restore()")
 	}
 
