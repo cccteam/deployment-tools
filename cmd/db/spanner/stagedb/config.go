@@ -20,7 +20,7 @@ type config struct {
 	spanner *dbinitiator.SpannerBackup
 }
 
-func newConfig(ctx context.Context, targetDb string) (*config, error) {
+func newConfig(ctx context.Context) (*config, error) {
 	var envVars envConfig
 	if err := envconfig.Process(ctx, &envVars); err != nil {
 		return nil, errors.Wrap(err, "envconfig.Process()")
@@ -31,11 +31,10 @@ func newConfig(ctx context.Context, targetDb string) (*config, error) {
 	}
 	db, err := dbinitiator.NewSpannerBackup(
 		ctx,
-		dbinitiator.SpannerBackup{
+		&dbinitiator.SpannerBackup{
 			ProjectID:    envVars.SpannerProjectID,
 			InstanceID:   envVars.SpannerInstanceID,
 			SourceDb:     envVars.SpannerSourceDatabaseName,
-			TargetDb:     targetDb,
 			MaxBackupAge: maxBackupAge,
 		},
 	)

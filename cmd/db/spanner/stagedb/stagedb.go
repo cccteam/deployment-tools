@@ -37,7 +37,7 @@ func setup(ctx context.Context) *cobra.Command {
 }
 
 func run(ctx context.Context, target string) error {
-	db, err := newConfig(ctx, target)
+	db, err := newConfig(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
