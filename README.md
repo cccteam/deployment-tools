@@ -32,6 +32,20 @@ deployment-tools db spanner drop --schema-dir <schema-migrations-dir>
 - Drops all tables defined in the db.
 - **Safety:** Will not run if the `_APP_ENV` environment variable is set to `prd`, `prod`, or `production`.
 
+```sh
+deployment-tools db spanner stagedb <target_database>
+```
+
+- Will run a backup restore of source database to target database.
+- Source database is provided using the environment variable `GOOGLE_CLOUD_SPANNER_DATABSE_NAME`
+- The target database name is provided as a string to the command.
+
+**NOTES:**
+- Target database must not contain the strings `prd` or `prod`.  The command will fail.
+- The target database *must not exist* before the restore process starts.  The database needs to be dropped ahead of running this command.
+- The takes an input of SpannerDatabaseMaxAge defined by environment variable `GOOGLE_CLOUD_SPANNER_MAX_AGE`.  When the backup runs, it checks for a recent backup.  If the most recent backup is older than the value, a new backup will be requested.
+
+
 ## Environment Variables
 
 The following environment variables must be set to connect to your Spanner instance:
@@ -39,6 +53,7 @@ The following environment variables must be set to connect to your Spanner insta
 - `GOOGLE_CLOUD_SPANNER_PROJECT`
 - `GOOGLE_CLOUD_SPANNER_INSTANCE_ID`
 - `GOOGLE_CLOUD_SPANNER_DATABASE_NAME`
+- `GOOGLE_CLOUD_SPANNER_MAX_AGE` (used by `stagedb`: maximum age of a backup, in seconds, before a new source backup is taken)
 
 ## Example Usage
 
