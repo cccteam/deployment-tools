@@ -37,7 +37,7 @@ deployment-tools db spanner stagedb <target_database>
 ```
 
 - Will run a backup restore of source database to target database.
-- Source database is provided using the environment variable `GOOGLE_CLOUD_SPANNER_DATABSE_NAME`
+- Source database is provided using the environment variable `GOOGLE_CLOUD_SPANNER_DATABASE_NAME`
 - The target database name is provided as a string to the command.
 
 **NOTES:**
