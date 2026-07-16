@@ -13,7 +13,7 @@ type envConfig struct {
 	SpannerProjectID          string `env:"GOOGLE_CLOUD_SPANNER_PROJECT"`
 	SpannerInstanceID         string `env:"GOOGLE_CLOUD_SPANNER_INSTANCE_ID"`
 	SpannerSourceDatabaseName string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_NAME"`
-	SpannerMaxBackupAge       string `env:"GOOGLE_CLOUD_SPANNER_MAX_AGE"`
+	SpannerMaxBackupAge       string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_MAX_AGE"`
 }
 
 type config struct {
