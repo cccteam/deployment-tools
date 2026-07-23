@@ -10,10 +10,10 @@ import (
 )
 
 type envConfig struct {
-	SpannerProjectID          string `env:"GOOGLE_CLOUD_SPANNER_PROJECT"`
-	SpannerInstanceID         string `env:"GOOGLE_CLOUD_SPANNER_INSTANCE_ID"`
-	SpannerSourceDatabaseName string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_NAME"`
-	SpannerMaxBackupAge       string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_MAX_AGE"`
+	SpannerProjectID          string `env:"GOOGLE_CLOUD_SPANNER_PROJECT,required"`
+	SpannerInstanceID         string `env:"GOOGLE_CLOUD_SPANNER_INSTANCE_ID,required"`
+	SpannerSourceDatabaseName string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_NAME,required"`
+	SpannerMaxBackupAge       string `env:"GOOGLE_CLOUD_SPANNER_DATABASE_MAX_AGE,required"`
 }
 
 type config struct {
@@ -25,6 +25,7 @@ func newConfig(ctx context.Context) (*config, error) {
 	if err := envconfig.Process(ctx, &envVars); err != nil {
 		return nil, errors.Wrap(err, "envconfig.Process()")
 	}
+
 	maxBackupAge, err := strconv.ParseInt(envVars.SpannerMaxBackupAge, 0, 64)
 	if err != nil {
 		return nil, errors.Wrap(err, "newConfig()")
