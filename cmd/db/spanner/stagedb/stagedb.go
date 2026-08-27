@@ -34,7 +34,7 @@ func setup(ctx context.Context) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&backupOnly, "backupOnly", "b", false, "Only execute backup")
+	cmd.Flags().BoolVarP(&backupOnly, "backup-only", "b", false, "Only execute backup")
 
 	return cmd
 }
@@ -44,26 +44,32 @@ func run(ctx context.Context, target string, cmd *cobra.Command) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
 	}
+
+	normalizedTarget, err := checkProdDatabaseName(target)
+	if err != nil {
+		return errors.Wrap(err, "checkProdDatabaseName()")
+	}
+
 	defer func() {
 		if err := db.spanner.Close(); err != nil {
-			log.Println("error closing database")
+			log.Printf("error closing database: %v\n", err)
 		}
 	}()
 
-	backupOnly, err := cmd.Flags().GetBool("backupOnly")
+	backupOnly, err := cmd.Flags().GetBool("backup-only")
 	if err != nil {
 		return errors.Wrap(err, "run()")
 	}
 	if backupOnly {
 		log.Println("backup only flag received, will not restore")
-		if err := backup(ctx, db, target); err != nil {
+		if err := backup(ctx, db, normalizedTarget); err != nil {
 			return err
 		}
 
 		return nil
 	}
 
-	if err := backupRestore(ctx, db, target); err != nil {
+	if err := backupRestore(ctx, db, normalizedTarget); err != nil {
 		return err
 	}
 
@@ -79,14 +85,19 @@ func backup(ctx context.Context, db *config, target string) error {
 	return nil
 }
 
-func backupRestore(ctx context.Context, db *config, target string) error {
+func checkProdDatabaseName(target string) (string, error) {
 	normalizedTarget := strings.ToLower(target)
 	if strings.Contains(normalizedTarget, "prd") || strings.Contains(normalizedTarget, "prod") {
-		return errors.Newf("will not target a production database. target: %s", normalizedTarget)
+		return "", errors.Newf("will not target a production database. target: %s", normalizedTarget)
 	}
+
+	return normalizedTarget, nil
+}
+
+func backupRestore(ctx context.Context, db *config, target string) error {
 	sourceDb, ok := os.LookupEnv("GOOGLE_CLOUD_SPANNER_DATABASE_NAME")
 	if !ok {
-		return errors.New("GOOGLE_CLOUD_SPANNER_DATABASE_NAME required environment variable not found.")
+		return errors.New("GOOGLE_CLOUD_SPANNER_DATABASE_NAME required environment variable not found")
 	}
 	log.Printf("source database set via environment variable: %s", sourceDb)
 
@@ -95,7 +106,7 @@ func backupRestore(ctx context.Context, db *config, target string) error {
 		return errors.Wrap(err, "Backup()")
 	}
 
-	if err := db.spanner.Restore(ctx, backup, normalizedTarget); err != nil {
+	if err := db.spanner.Restore(ctx, backup, target); err != nil {
 		return errors.Wrap(err, "Restore()")
 	}
 
