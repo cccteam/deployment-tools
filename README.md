@@ -42,10 +42,9 @@ deployment-tools db spanner stagedb <target_database>
 - Backs up the source database and restores it to the target database.
 - The source database comes from the `GOOGLE_CLOUD_SPANNER_DATABASE_NAME` environment variable.
 - The target database name is passed as an argument to the command.
-- `--backupOnly` (`-b`) takes the backup and stops there, skipping the restore. A target argument is still required but is not used.
+- `--backup-only` (`-b`) takes the backup and stops there, skipping the restore. A target argument is still required but is not used.
 
 **NOTES:**
-- The command will fail if the target database name contains `prd` or `prod`.
 - The target database name is lowercased before the restore, so `MyStageDb` creates `mystagedb`.
 - The target database *must not exist* when the restore starts. Drop it before running this command.
 - `GOOGLE_CLOUD_SPANNER_DATABASE_MAX_AGE` sets how old an existing backup may be, in seconds. If the most recent backup of the source database is newer than this, it is reused; otherwise a new backup is taken.
@@ -61,6 +60,8 @@ The following environment variables must be set to connect to your Spanner insta
 `stagedb` also requires:
 
 - `GOOGLE_CLOUD_SPANNER_DATABASE_MAX_AGE` - maximum age of an existing backup, in seconds, before a new source backup is taken
+
+Setting the Database Max Age to 0 or a negative value will "bypass" the check and force a new backup to be created.
 
 ## Example Usage
 
@@ -85,4 +86,3 @@ deployment-tools db spanner stagedb my-stage-db
 
 - The drop command will refuse to run if `_APP_ENV` indicates a production environment.
 - All operations use the [migrate](https://github.com/zredinger-ccc/migrate) library for safe, repeatable migrations.
-
