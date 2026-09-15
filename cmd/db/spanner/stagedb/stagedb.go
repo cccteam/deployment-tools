@@ -3,7 +3,6 @@ package stagedb
 import (
 	"context"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/go-playground/errors/v5"
@@ -20,13 +19,13 @@ func Command(ctx context.Context) *cobra.Command {
 func setup(ctx context.Context) *cobra.Command {
 	var backupOnly bool
 	cmd := &cobra.Command{
-		Use:   "stagedb [target]",
+		Use:   "stagedb <target>",
 		Short: "Back up and restore given source Spanner database to provided target database",
 		Long:  "Backs up the configured source Spanner database and restores it to the provided target database",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			target := args[0]
-			if err := run(ctx, target, cmd); err != nil {
+			if err := run(ctx, target, backupOnly); err != nil {
 				return errors.Wrap(err, "run()")
 			}
 
@@ -39,15 +38,10 @@ func setup(ctx context.Context) *cobra.Command {
 	return cmd
 }
 
-func run(ctx context.Context, target string, cmd *cobra.Command) error {
+func run(ctx context.Context, target string, backupOnly bool) error {
 	db, err := newConfig(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize config")
-	}
-
-	normalizedTarget, err := checkProdDatabaseName(target)
-	if err != nil {
-		return errors.Wrap(err, "checkProdDatabaseName()")
 	}
 
 	defer func() {
@@ -56,19 +50,18 @@ func run(ctx context.Context, target string, cmd *cobra.Command) error {
 		}
 	}()
 
-	backupOnly, err := cmd.Flags().GetBool("backup-only")
-	if err != nil {
-		return errors.Wrap(err, "run()")
-	}
+	normalizedTarget := normalizeName(target)
+
 	if backupOnly {
-		log.Println("backup only flag received, will not restore")
-		if err := backup(ctx, db, normalizedTarget); err != nil {
+		log.Printf("backup only flag received, will not restore\nBacking up database %s", db.spanner.SourceDb)
+		if err := backup(ctx, db); err != nil {
 			return err
 		}
 
 		return nil
 	}
 
+	log.Printf("restoring database %s database\n", target)
 	if err := backupRestore(ctx, db, normalizedTarget); err != nil {
 		return err
 	}
@@ -76,31 +69,20 @@ func run(ctx context.Context, target string, cmd *cobra.Command) error {
 	return nil
 }
 
-func backup(ctx context.Context, db *config, target string) error {
+func backup(ctx context.Context, db *config) error {
 	_, err := db.spanner.Backup(ctx)
 	if err != nil {
-		return errors.Wrap(err, "backup()")
+		return errors.Wrap(err, "db.spanner.Backup()")
 	}
 
 	return nil
 }
 
-func checkProdDatabaseName(target string) (string, error) {
-	normalizedTarget := strings.ToLower(target)
-	if strings.Contains(normalizedTarget, "prd") || strings.Contains(normalizedTarget, "prod") {
-		return "", errors.Newf("will not target a production database. target: %s", normalizedTarget)
-	}
-
-	return normalizedTarget, nil
+func normalizeName(target string) string {
+	return strings.ToLower(target)
 }
 
 func backupRestore(ctx context.Context, db *config, target string) error {
-	sourceDb, ok := os.LookupEnv("GOOGLE_CLOUD_SPANNER_DATABASE_NAME")
-	if !ok {
-		return errors.New("GOOGLE_CLOUD_SPANNER_DATABASE_NAME required environment variable not found")
-	}
-	log.Printf("source database set via environment variable: %s", sourceDb)
-
 	backup, err := db.spanner.Backup(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Backup()")
