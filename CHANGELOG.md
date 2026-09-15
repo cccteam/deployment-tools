@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/cccteam/deployment-tools/compare/v0.0.4...v0.0.5) (2026-09-09)
+
+
+### Bug Fixes
+
+* bump db-initiator to v0.3.16 to stop reload-db DeadlineExceeded ([#17](https://github.com/cccteam/deployment-tools/issues/17)) ([e0906b9](https://github.com/cccteam/deployment-tools/commit/e0906b937b5ef9282bfde66e54ef5eb0a2f1d87b))
+
 ## [0.0.4](https://github.com/cccteam/deployment-tools/compare/v0.0.3...v0.0.4) (2026-05-07)
 
 
