@@ -61,7 +61,7 @@ func run(ctx context.Context, target string, backupOnly bool) error {
 		return nil
 	}
 
-	log.Printf("restoring database to %s\n", target)
+	log.Printf("restoring database to %s\n", normalizedTarget)
 	if err := backupRestore(ctx, db, normalizedTarget); err != nil {
 		return err
 	}
