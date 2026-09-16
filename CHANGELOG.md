@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/cccteam/deployment-tools/compare/v0.0.5...v0.0.6) (2026-09-16)
+
+
+### Features
+
+* **stagedb:** add Spanner backup and restore command (PLAT-2558) ([#19](https://github.com/cccteam/deployment-tools/issues/19)) ([678133d](https://github.com/cccteam/deployment-tools/commit/678133ddd9a10ab45030a3dcf8a40509f5f2e2a8))
+
 ## [0.0.5](https://github.com/cccteam/deployment-tools/compare/v0.0.4...v0.0.5) (2026-09-09)
 
 
