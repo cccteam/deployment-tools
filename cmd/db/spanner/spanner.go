@@ -5,6 +5,7 @@ import (
 
 	"github.com/cccteam/deployment-tools/cmd/db/spanner/bootstrap"
 	"github.com/cccteam/deployment-tools/cmd/db/spanner/dropschema"
+	"github.com/cccteam/deployment-tools/cmd/db/spanner/stagedb"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +27,7 @@ func (command) Setup(ctx context.Context) *cobra.Command {
 
 	cmd.AddCommand(bootstrap.Command(ctx))
 	cmd.AddCommand(dropschema.Command(ctx))
+	cmd.AddCommand(stagedb.Command(ctx))
 
 	return cmd
 }
