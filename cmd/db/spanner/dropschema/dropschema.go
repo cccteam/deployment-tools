@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"github.com/go-playground/errors/v5"
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/source/file" // up/down script file source driver for the migrate package
 	"github.com/spf13/cobra"
 )
 
@@ -78,8 +76,7 @@ func (c *command) Run(ctx context.Context, cmd *cobra.Command) error {
 
 	log.Println("Dropping schema tables...")
 
-	if err := conf.migrateClient.MigrateDropSchema(ctx); err != nil &&
-		!errors.Is(err, migrate.ErrNoChange) {
+	if err := conf.migrateClient.MigrateDropSchema(ctx); err != nil {
 		return errors.Wrap(err, "failed to drop schema")
 	}
 

@@ -182,10 +182,6 @@ linters:
       - linters:
           - errcheck
         text: Rollback
-      - linters:
-          - gomoddirectives
-        path: go\.mod
-        text: replacement are not allowed
     paths:
       - third_party$
       - builtin$

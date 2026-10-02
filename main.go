@@ -6,7 +6,6 @@ import (
 
 	"github.com/cccteam/deployment-tools/cmd"
 	"github.com/go-playground/errors/v5"
-	_ "github.com/golang-migrate/migrate/v4/source/file" // up/down script file source driver for the migrate package
 	"github.com/jtwatson/shutdown"
 )
 
