@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.7](https://github.com/cccteam/deployment-tools/compare/v0.0.6...v0.0.7) (2026-10-09)
+
+
+### Code Upgrade
+
+* **deps:** bump google.golang.org/api ([#26](https://github.com/cccteam/deployment-tools/issues/26)) ([6ef0b04](https://github.com/cccteam/deployment-tools/commit/6ef0b0484e8db0d83aa2dad24618e0a0800014e8))
+* **deps:** bump the github-actions group with 2 updates ([#25](https://github.com/cccteam/deployment-tools/issues/25)) ([b630208](https://github.com/cccteam/deployment-tools/commit/b630208a46828a4e15e6f0b8efbef69af725d94d))
+* **deps:** Go 1.26.9 and golang.org/x/net v0.60.0; net/http GO-2026-6612, GO-2026-6613 and GO-2026-6617 fixed ([#23](https://github.com/cccteam/deployment-tools/issues/23)) ([dc4d865](https://github.com/cccteam/deployment-tools/commit/dc4d865190cb1b33caf60133866a428a0b04733f))
+* **deps:** golang-security-scan v8.2.1 with its Grype switch; checkout v6, setup-go v6, create-github-app-token v3 ([#15](https://github.com/cccteam/deployment-tools/issues/15)) ([f5e0eab](https://github.com/cccteam/deployment-tools/commit/f5e0eab18c21a6da7c20a0306a620470eff896f3))
+
 ## [0.0.6](https://github.com/cccteam/deployment-tools/compare/v0.0.5...v0.0.6) (2026-09-16)
 
 
