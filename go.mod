@@ -2,12 +2,7 @@ module github.com/cccteam/deployment-tools
 
 go 1.26.6
 
-replace github.com/golang-migrate/migrate/v4 v4.19.1 => github.com/jtwatson/migrate/v4 v4.19.2-beta.0
-
-require (
-	github.com/golang-migrate/migrate/v4 v4.19.1
-	google.golang.org/api v0.297.0
-)
+require google.golang.org/api v0.297.0
 
 require (
 	cel.dev/expr v0.25.2 // indirect
@@ -56,7 +51,6 @@ require (
 	github.com/jackc/pgx/v5 v5.10.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.19.1 // indirect
-	github.com/lib/pq v1.12.3 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260627054121-477a66015f15 // indirect
 	github.com/magiconair/properties v1.18.11 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
@@ -109,7 +103,7 @@ require (
 
 require (
 	cloud.google.com/go/spanner v1.95.0 // indirect
-	github.com/cccteam/db-initiator v0.3.16
+	github.com/cccteam/db-initiator v0.4.0
 	github.com/cccteam/logger v0.1.27 // indirect
 	github.com/go-playground/errors/v5 v5.4.0
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

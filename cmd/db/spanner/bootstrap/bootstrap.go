@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/go-playground/errors/v5"
-	"github.com/golang-migrate/migrate/v4"
 	"github.com/spf13/cobra"
 )
 
@@ -158,28 +157,20 @@ func linkAndMigrateDirs(ctx context.Context, conf *config, migrationSourceURLs [
 
 func migrateSchema(ctx context.Context, conf *config, migrationSourceURL string) error {
 	log.Printf("Running bootstrap migrations with schema dir: %s \n", migrationSourceURL)
-	if err := conf.migrateClient.MigrateUpSchema(ctx, migrationSourceURL); err != nil &&
-		!errors.Is(err, migrate.ErrNoChange) {
+	if err := conf.migrateClient.MigrateUpSchema(ctx, migrationSourceURL); err != nil {
 		return errors.Wrap(err, "failed to run schema migrations")
-	} else if errors.Is(err, migrate.ErrNoChange) {
-		log.Println("No new Migration scripts found. No changes applied.")
-	} else {
-		log.Println("Schema migrations successful")
 	}
+	log.Println("Schema migrations successful")
 
 	return nil
 }
 
 func migrateData(ctx context.Context, conf *config, migrationSourceURL string) error {
 	log.Println("Running bootstrap data migrations")
-	if err := conf.migrateClient.MigrateUpData(ctx, migrationSourceURL); err != nil &&
-		!errors.Is(err, migrate.ErrNoChange) {
+	if err := conf.migrateClient.MigrateUpData(ctx, migrationSourceURL); err != nil {
 		return errors.Wrap(err, "failed to run data migrations")
-	} else if errors.Is(err, migrate.ErrNoChange) {
-		log.Println("No new Migration scripts found. No changes applied.")
-	} else {
-		log.Println("Data migrations successful")
 	}
+	log.Println("Data migrations successful")
 
 	return nil
 }
