@@ -1,8 +1,15 @@
 module github.com/cccteam/deployment-tools
 
-go 1.26.9
+go 1.27.3
 
-require google.golang.org/api v0.300.0
+require (
+	github.com/cccteam/db-initiator v0.4.0
+	github.com/go-playground/errors/v5 v5.4.0
+	github.com/jtwatson/shutdown v0.1.1
+	github.com/sethvargo/go-envconfig v1.4.3
+	github.com/spf13/cobra v1.10.2
+	google.golang.org/api v0.300.0
+)
 
 require (
 	cel.dev/expr v0.25.2 // indirect
@@ -14,11 +21,13 @@ require (
 	cloud.google.com/go/logging v1.19.1 // indirect
 	cloud.google.com/go/longrunning v1.2.0 // indirect
 	cloud.google.com/go/monitoring v1.30.0 // indirect
+	cloud.google.com/go/spanner v1.95.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp v1.6.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.35.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/cccteam/logger v0.1.27 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudspannerecosystem/memefish v0.8.1 // indirect
@@ -45,6 +54,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
 	github.com/googleapis/gax-go/v2 v2.26.2 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx-shopspring-decimal v0.0.0-20220624020537-1d36b5a1853e // indirect
@@ -70,6 +80,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/testcontainers/testcontainers-go v0.44.0 // indirect
@@ -99,16 +110,4 @@ require (
 	google.golang.org/grpc v1.84.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-require (
-	cloud.google.com/go/spanner v1.95.0 // indirect
-	github.com/cccteam/db-initiator v0.4.0
-	github.com/cccteam/logger v0.1.27 // indirect
-	github.com/go-playground/errors/v5 v5.4.0
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/jtwatson/shutdown v0.1.1
-	github.com/sethvargo/go-envconfig v1.4.3
-	github.com/spf13/cobra v1.10.2
-	github.com/spf13/pflag v1.0.10 // indirect
 )
