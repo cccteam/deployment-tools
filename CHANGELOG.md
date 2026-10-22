@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.8](https://github.com/cccteam/deployment-tools/compare/v0.0.7...v0.0.8) (2026-10-22)
+
+
+### Code Upgrade
+
+* **deps:** Go 1.27.3; crypto/x509 GO-2026-6809 fixed ([#28](https://github.com/cccteam/deployment-tools/issues/28)) ([cf0aa1f](https://github.com/cccteam/deployment-tools/commit/cf0aa1f8d1c1fb9e5b02ab1df6e657ec26e51462))
+
 ## [0.0.7](https://github.com/cccteam/deployment-tools/compare/v0.0.6...v0.0.7) (2026-10-09)
 
 
